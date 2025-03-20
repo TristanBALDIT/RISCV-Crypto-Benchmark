@@ -239,3 +239,47 @@ void aes_cbc_encrypt(uint32_t *data, int num_blocks, uint32_t *key, uint32_t *iv
         encryptBlock(data+16*i, key, key_size);
     }
 }
+
+void aes_cbc_decrypt(uint32_t *data, int num_blocks, uint32_t *key, uint32_t *iv, KeySize key_size)
+{
+
+    for (int i = num_blocks-1; i > 0 ; i--)
+    {
+        decryptBlock(data + 4 * i, key, key_size);
+        for(int j = 0; j < 4; j++)
+        {
+            data[i*4 + j] = data[i*4 + j] ^ data[(i-1) * 4 + j];
+        }
+    }
+
+    decryptBlock(data, key, key_size);
+    for(int i = 0; i < 4; i++)
+    {
+        data[i] = data[i] ^ iv[i];
+    }
+
+}
+
+void aes_ctr(uint32_t *data, int num_blocks, uint32_t *key, uint32_t *iv, KeySize key_size)
+{
+    uint32_t counter = 0;
+    uint32_t state[4];
+
+    for (int i = 0; i < num_blocks; i++)
+    {
+        state[0] = iv[0];
+        state[1] = iv[1];
+        state[2] = iv[0];
+        state[3] = counter;
+
+        encryptBlock(state, key, key_size);
+
+        for(int j = 0; j < 4; j++)
+        {
+            data[i*4 + j] = data[i*4 + j] ^ state[j];
+        }
+
+        counter++;
+    }
+}
+

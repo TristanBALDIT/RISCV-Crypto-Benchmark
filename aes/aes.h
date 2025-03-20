@@ -33,5 +33,8 @@ void inv_mixColumns(uint32_t state[4]);
 void keyExpansion(const uint32_t key[4], uint32_t *expanded_key, KeySize key_size);
 void encryptBlock(uint32_t block[4], uint32_t *key, KeySize key_size);
 void decryptBlock(uint32_t block[4], uint32_t *key, KeySize key_size);
+void aes_cbc_encrypt(uint32_t *data, int num_blocks, uint32_t *key, uint32_t *iv, KeySize key_size);
+void aes_cbc_decrypt(uint32_t *data, int num_blocks, uint32_t *key, uint32_t *iv, KeySize key_size);
+void aes_ctr(uint32_t *data, int num_blocks, uint32_t *key, uint32_t *iv, KeySize key_size);
 
 #endif // AES_H

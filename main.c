@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
-#include "aes.h"
-#include "chacha.h"
+#include "aes/aes.h"
+#include "chacha/chacha.h"
 
 void print_state(uint32_t state[4])
 {
