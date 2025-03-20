@@ -36,5 +36,7 @@ void decryptBlock(uint32_t block[4], uint32_t *key, KeySize key_size);
 void aes_cbc_encrypt(uint32_t *data, int num_blocks, uint32_t *key, uint32_t *iv, KeySize key_size);
 void aes_cbc_decrypt(uint32_t *data, int num_blocks, uint32_t *key, uint32_t *iv, KeySize key_size);
 void aes_ctr(uint32_t *data, int num_blocks, uint32_t *key, uint32_t *iv, KeySize key_size);
+void galois_mult(uint8_t Z[16], const uint8_t X[16], const uint8_t H[16]);
+void ghash_AD(uint32_t output[4], const uint32_t *input, int len, const uint32_t H[4]);
 
 #endif // AES_H

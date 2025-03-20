@@ -283,3 +283,119 @@ void aes_ctr(uint32_t *data, int num_blocks, uint32_t *key, uint32_t *iv, KeySiz
     }
 }
 
+void aes_gcm(uint32_t *data, uint32_t* ad_data, int num_blocks, int num_blocks_ad, uint32_t *key, uint32_t *iv, KeySize key_size, uint32_t T[4])
+{
+    uint32_t counter = 0;
+    uint32_t hashsubkey[4] = {0,0,0,0};
+
+    uint32_t counterBlock[4];
+    counterBlock[0] = iv[0];
+    counterBlock[1] = iv[1];
+    counterBlock[2] = iv[2];
+    counterBlock[3] = counter;
+
+    encryptBlock(hashsubkey, key, key_size);
+    encryptBlock(counterBlock, key, key_size);
+    uint32_t X[4];
+    ghash_AD(X,ad_data, num_blocks_ad,hashsubkey);
+
+    for(int i = 0; i < num_blocks; i++)
+    {
+        counter++;
+        counterBlock[0] = iv[0];
+        counterBlock[1] = iv[1];
+        counterBlock[2] = iv[2];
+        counterBlock[3] = counter;
+
+        encryptBlock(counterBlock, key, key_size);
+        for(int j = 0; j < 4; j++)
+        {
+            data[i*4 + j] = data[i*4 + j] ^ counterBlock[j];
+            X[j] ^= data[i*4 + j];
+        }
+
+        galois_mult(X,X,hashsubkey);
+
+    }
+    uint64_t len_A = num_blocks_ad * 128;
+    uint64_t len_C = num_blocks * 128;
+    uint32_t len_block[4]; // Bloc de 128 bits pour stocker len(A) || len(C)
+    len_block[0] = (uint32_t)(len_A >> 32); // Bits 127 à 96 de len_A
+    len_block[1] = (uint32_t)(len_A & 0xFFFFFFFF); // Bits 95 à 64 de len_A
+    len_block[2] = (uint32_t)(len_C >> 32); // Bits 63 à 32 de len_C
+    len_block[3] = (uint32_t)(len_C & 0xFFFFFFFF); // Bits 31 à 0 de len_C
+
+    for (int i = 0; i < 4; i++)
+    {
+        X[i] ^= len_block[i];
+    }
+    galois_mult(X,X,hashsubkey);
+    for (int i = 0; i < 4; i++)
+    {
+        X[i] ^= len_block[i];
+    }
+}
+
+
+// Multiplication dans GF(2^128)
+void galois_mult(uint8_t Z[16], const uint8_t X[16], const uint8_t H[16]) {
+    uint8_t V[16];
+    memcpy(V, H, 16);
+    memset(Z, 0, 16);
+
+    for (int i = 0; i < 128; i++) {
+        if (X[i / 8] & (1 << (7 - (i % 8)))) {
+            for (int j = 0; j < 16; j++) {
+                Z[j] ^= V[j];
+            }
+        }
+        // Shift à droite dans GF(2^128)
+        uint8_t carry = V[15] & 1;
+        for (int j = 15; j > 0; j--) {
+            V[j] = (V[j] >> 1) | (V[j - 1] << 7);
+        }
+        V[0] >>= 1;
+        if (carry) {
+            V[0] ^= 0xE1;  // Polynôme de réduction de GF(2^128)
+        }
+    }
+}
+
+// Fonction GHASH
+void ghash_AD(uint32_t output[4], const uint32_t *input, int len, const uint32_t H[4]) {
+    uint32_t Y[4] = {0, 0, 0, 0};  // Y_0 = 0
+
+    // Traitement bloc par bloc (taille de 128 bits = 4 * 32 bits)
+    for (int i = 0; i < len / 16; i++) {
+        // XOR du bloc en entrée avec l'état actuel
+        Y[0] ^= input[i * 4 + 0];
+        Y[1] ^= input[i * 4 + 1];
+        Y[2] ^= input[i * 4 + 2];
+        Y[3] ^= input[i * 4 + 3];
+
+        // Multiplication dans GF(2^128)
+        galois_mult(Y, Y, H);
+    }
+
+    // Gestion du dernier bloc s’il ne fait pas 16 octets
+    int remainder = len % 16;
+    if (remainder > 0) {
+        uint32_t X[4] = {0, 0, 0, 0};
+        memcpy(X, input + (len / 16) * 4, remainder);
+
+        // XOR du dernier bloc incomplet
+        Y[0] ^= X[0];
+        Y[1] ^= X[1];
+        Y[2] ^= X[2];
+        Y[3] ^= X[3];
+
+        // Multiplication finale
+        galois_mult(Y, Y, H);
+    }
+
+    // Stocker le résultat final
+    output[0] = Y[0];
+    output[1] = Y[1];
+    output[2] = Y[2];
+    output[3] = Y[3];
+}
