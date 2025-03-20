@@ -9,4 +9,4 @@ add_executable(RISCV_Crypto_Benchmark main.c
         chacha.c
         chacha.h
         loader.c
-        loader.h)
+        loader.h )
