@@ -10,4 +10,8 @@ add_executable(RISCV_Crypto_Benchmark main.c
         chacha/chacha.h
         loader.c
         loader.h
-        aes/aes.c)
+        aes/aes.c
+        chacha/poly1305.c
+        chacha/poly1305.h
+        monocypher.c
+        monocypher.h)

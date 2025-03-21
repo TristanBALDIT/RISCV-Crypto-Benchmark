@@ -224,7 +224,7 @@ void decryptBlock(uint32_t block[4], uint32_t *key, KeySize key_size)
 
 void aes_cbc_encrypt(uint32_t *data, int num_blocks, uint32_t *key, uint32_t *iv, KeySize key_size)
 {
-    for (int i = 0; i < 16; i++)
+    for (int i = 0; i < 4; i++)
     {
         data[i] = data[i] ^ iv[i];
     }
@@ -232,11 +232,11 @@ void aes_cbc_encrypt(uint32_t *data, int num_blocks, uint32_t *key, uint32_t *iv
 
     for(int i = 1; i < num_blocks; i++)
     {
-        for(int j = 0; j < 16; j++)
+        for(int j = 0; j < 4; j++)
         {
-            data[i*16 + j] = data[i*16 + j] ^ data[(i-1) * 16 + j];
+            data[i*4 + j] = data[i*4 + j] ^ data[(i-1) * 4 + j];
         }
-        encryptBlock(data+16*i, key, key_size);
+        encryptBlock(data+4*i, key, key_size);
     }
 }
 
