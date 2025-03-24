@@ -6,6 +6,7 @@
 #include "chacha/chacha.h"
 #include "chacha/poly1305.h"
 #include  "loader.h"
+#include "ascon.h"
 
 void print_state(uint32_t state[4])
 {
@@ -140,6 +141,36 @@ int main() {
     free(block_10);
     free(nonce);
     free(iv);
+
+    uint64_t ciphertext[10];
+    uint64_t tag[2];
+    uint64_t *plaintext = generate_random_64bit_words(10);
+    uint64_t *key_ascon = generate_random_64bit_words(2);
+    uint64_t *nonce_ascon = generate_random_64bit_words(2);
+    uint64_t iv_ascon = 0x80400c0600000000;
+    uint64_t *ad_data = generate_random_64bit_words(5);
+    uint64_t result[10];
+
+    printf("plain\n");
+    for (int i = 0; i < 10; i++)
+    {
+        printf("%016llX ", plaintext[i]);
+    }
+    printf("\n");
+    ASCON_128_encrypt(plaintext, key_ascon, nonce_ascon, ad_data, 640, 320, ciphertext, tag);
+    printf("cipher\n");
+    for (int i = 0; i < 10; i++)
+    {
+        printf("%016llX ", ciphertext[i]);
+    }
+    printf("\n");
+    ASCON_128_decrypt(result, key_ascon, nonce_ascon, ad_data, 640, 320, ciphertext, tag);
+    printf("plain \n");
+    for (int i = 0; i < 10; i++)
+    {
+        printf("%016llX ", result[i]);
+    }
+    printf("\n");
     return 0;
 }
 

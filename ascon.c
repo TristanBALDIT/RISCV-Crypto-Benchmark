@@ -138,7 +138,7 @@ void ASCON_128_decrypt(uint64_t *data, const uint64_t key[2], const uint64_t non
 
     for(int i = 0; i < num_blocks-1; i++)
     {
-        data[i] ^= state[0] ^ ciphertext[i];
+        data[i] = state[0] ^ ciphertext[i];
         state[0] = ciphertext[i];
         p(state,6);
     }

@@ -24,6 +24,23 @@ uint32_t * generate_random_32bit_words(int num_words)
 }
 
 
+uint64_t * generate_random_64bit_words(int num_words)
+{
+    uint64_t * words = (uint64_t *)malloc(num_words * sizeof(uint64_t));
+    if(!words)
+    {
+        perror("Erreur d'allocation mémoire");
+        exit(EXIT_FAILURE);
+    }
+
+    for (int i = 0; i < num_words; i++)
+    {
+        words[i] = (uint64_t)rand();
+    }
+    return words;
+}
+
+
 uint32_t *load_file(const char *filename, size_t *num_words)
 {
     FILE *file = fopen(filename, "rb");
