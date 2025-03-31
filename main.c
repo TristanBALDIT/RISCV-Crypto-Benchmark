@@ -147,7 +147,6 @@ int main() {
     uint64_t *plaintext = generate_random_64bit_words(10);
     uint64_t *key_ascon = generate_random_64bit_words(2);
     uint64_t *nonce_ascon = generate_random_64bit_words(2);
-    uint64_t iv_ascon = 0x80400c0600000000;
     uint64_t *ad_data = generate_random_64bit_words(5);
     uint64_t result[10];
 
