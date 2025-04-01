@@ -18,7 +18,7 @@ uint32_t * generate_random_32bit_words(int num_words)
 
     for (int i = 0; i < num_words; i++)
     {
-        words[i] = (uint32_t)rand();
+        words[i] = (uint32_t) rand();
     }
     return words;
 }

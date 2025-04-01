@@ -28,14 +28,12 @@ void poly1305(uint8_t mac[16], const uint8_t *message, size_t message_size, cons
 
         poly_sum_mul(h,r,s,block_size);
 
-        printf("%d", block_size);
-        printf("\n%02x ", h[0]);
-        printf("%02x ", h[1]);
-        printf("%02x ", h[2]);
-        printf("%02x ", h[3]);
-        printf("%02x\n", h[4]);
-
-
+        // printf("%llu", block_size);
+        // printf("\n%02x ", h[0]);
+        // printf("%02x ", h[1]);
+        // printf("%02x ", h[2]);
+        // printf("%02x ", h[3]);
+        // printf("%02x\n", h[4]);
 
         message += block_size;
         message_size -= block_size;
@@ -77,7 +75,7 @@ void test_poly1305() {
     for (int i = 0; i < 16; i++) {
         printf("%02x ", tag[i]);
     }
-    printf("\n");
+    printf("\n\n");
 
 }
 
@@ -92,7 +90,7 @@ static void poly_sum_mul(uint32_t h[5], const uint32_t r[4], uint32_t s[4], size
     uint64_t s3 = h[3] + (uint64_t) s[3];
     uint32_t s4= h[4] + (block_size == 16);
 
-    printf("%02x ", s4);
+    //printf("%02x ", s4);
 
 
     // These would fit in 32 bits, but we need 64 bit multiplications
