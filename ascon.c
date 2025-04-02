@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <stddef.h>
 #include "ascon.h"
 
 uint64_t rc[12] = {
@@ -42,8 +43,8 @@ void ASCON_128_encrypt(uint64_t *data, const uint64_t key[2], const uint64_t non
     size_t l = len_data % 64;
     size_t n = len_ad_data % 64;
 
-    size_t num_blocks = len_data / 64;
-    size_t num_ad_blocks = len_ad_data / 64;
+    size_t num_blocks = (len_data+63) / 64;         //+63 to count incomplete blocks
+    size_t num_ad_blocks = (len_ad_data+63) / 64;   //+63 to count incomplete blocks
 
     if (l != 0)
     {

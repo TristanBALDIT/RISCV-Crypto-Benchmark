@@ -11,6 +11,7 @@
 #define ROL32(x,n) ((x << n) | (x >> (32 - n)))
 #define ROR32(x,n) ((x >> n) | (x << (32 - n)))
 #define xtime(x) ((x << 1) ^ (((x >> 7) & 1) * 0x1B))
+#define R 0xE1000000U
 
 typedef enum {
     KEY_SIZE_128 = 4,
@@ -36,7 +37,9 @@ void decryptBlock(uint32_t block[4], uint32_t *key, KeySize key_size);
 void aes_cbc_encrypt(uint32_t *data, int num_blocks, uint32_t *key, uint32_t *iv, KeySize key_size);
 void aes_cbc_decrypt(uint32_t *data, int num_blocks, uint32_t *key, uint32_t *iv, KeySize key_size);
 void aes_ctr(uint32_t *data, int num_blocks, uint32_t *key, uint32_t *iv, KeySize key_size);
-void galois_mult(uint8_t Z[16], const uint8_t X[16], const uint8_t H[16]);
+void galois_mult(uint32_t Z[4], const uint32_t X[4], const uint32_t Y[4]);
 void ghash_AD(uint32_t output[4], const uint32_t *input, int len, const uint32_t H[4]);
+void aes_gcm(uint32_t *data, uint32_t* ad_data, int num_blocks, int num_blocks_ad, uint32_t *key, uint32_t *iv, KeySize key_size, uint32_t T[4]);
+
 
 #endif // AES_H

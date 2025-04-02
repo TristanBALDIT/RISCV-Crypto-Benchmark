@@ -285,7 +285,7 @@ void aes_ctr(uint32_t *data, int num_blocks, uint32_t *key, uint32_t *iv, KeySiz
 
 void aes_gcm(uint32_t *data, uint32_t* ad_data, int num_blocks, int num_blocks_ad, uint32_t *key, uint32_t *iv, KeySize key_size, uint32_t T[4])
 {
-    uint32_t counter = 0;
+    uint32_t counter = 1;
     uint32_t hashsubkey[4] = {0,0,0,0};
 
     uint32_t counterBlock[4];
@@ -296,6 +296,10 @@ void aes_gcm(uint32_t *data, uint32_t* ad_data, int num_blocks, int num_blocks_a
 
     encryptBlock(hashsubkey, key, key_size);
     encryptBlock(counterBlock, key, key_size);
+
+    uint32_t firstBlock[4];
+    memcpy(firstBlock,counterBlock,4*sizeof(uint32_t));
+
     uint32_t X[4];
     ghash_AD(X,ad_data, num_blocks_ad,hashsubkey);
 
@@ -308,6 +312,7 @@ void aes_gcm(uint32_t *data, uint32_t* ad_data, int num_blocks, int num_blocks_a
         counterBlock[3] = counter;
 
         encryptBlock(counterBlock, key, key_size);
+
         for(int j = 0; j < 4; j++)
         {
             data[i*4 + j] = data[i*4 + j] ^ counterBlock[j];
@@ -332,31 +337,42 @@ void aes_gcm(uint32_t *data, uint32_t* ad_data, int num_blocks, int num_blocks_a
     galois_mult(X,X,hashsubkey);
     for (int i = 0; i < 4; i++)
     {
-        X[i] ^= len_block[i];
+        T[i] = X[i] ^ len_block[i];
+        T[i] ^= firstBlock[i];
     }
+
 }
 
 
 // Multiplication dans GF(2^128)
-void galois_mult(uint8_t Z[16], const uint8_t X[16], const uint8_t H[16]) {
-    uint8_t V[16];
-    memcpy(V, H, 16);
-    memset(Z, 0, 16);
+void galois_mult(uint32_t Z[4], const uint32_t X[4], const uint32_t Y[4]) {
+    uint32_t V[4];
+    memcpy(V, X, 16); // V <- X
+    memset(Z, 0, 16); // Z <- 0
 
     for (int i = 0; i < 128; i++) {
-        if (X[i / 8] & (1 << (7 - (i % 8)))) {
-            for (int j = 0; j < 16; j++) {
-                Z[j] ^= V[j];
-            }
+        // Vérifier si le i-ème bit de Y est à 1
+        int word_index = i / 32;
+        int bit_index = 31 - i % 32;
+        if (Y[word_index] & (1U << bit_index)) {
+            Z[0] ^= V[0];
+            Z[1] ^= V[1];
+            Z[2] ^= V[2];
+            Z[3] ^= V[3];
         }
-        // Shift à droite dans GF(2^128)
-        uint8_t carry = V[15] & 1;
-        for (int j = 15; j > 0; j--) {
-            V[j] = (V[j] >> 1) | (V[j - 1] << 7);
-        }
+
+        // Vérifier le bit de poids fort de V (V127)
+        uint32_t carry = V[3] & 1U;
+
+        // Décalage à droite de V
+        V[3] = (V[3] >> 1) | (V[2] << 31);
+        V[2] = (V[2] >> 1) | (V[1] << 31);
+        V[1] = (V[1] >> 1) | (V[0] << 31);
         V[0] >>= 1;
+
+        // Appliquer le polynôme de réduction si le bit de poids fort était 1
         if (carry) {
-            V[0] ^= 0xE1;  // Polynôme de réduction de GF(2^128)
+            V[0] ^= R;
         }
     }
 }
