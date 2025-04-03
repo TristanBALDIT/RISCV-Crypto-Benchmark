@@ -5,6 +5,7 @@
 #include "chacha.h"
 
 #include <stdio.h>
+#include <stddef.h>
 #include <string.h>
 #include "poly1305.h"
 

@@ -5,6 +5,7 @@
 #ifndef CHACHA_H
 #define CHACHA_H
 #include <stdint.h>
+#include <stddef.h>
 #define CHACHA_CONST_0 0x61707865  // "expa"
 #define CHACHA_CONST_1 0x3320646E  // "nd 3"
 #define CHACHA_CONST_2 0x79622D32  // "2-by"

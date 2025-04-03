@@ -108,8 +108,8 @@ void ASCON_128_decrypt(uint64_t *data, const uint64_t key[2], const uint64_t non
     size_t l = len_data % 64;
     size_t n = len_ad_data % 64;
 
-    size_t num_blocks = len_data / 64;
-    size_t num_ad_blocks = len_ad_data / 64;
+    size_t num_blocks = (len_data+63) / 64;
+    size_t num_ad_blocks = (len_ad_data+63) / 64;
 
     if(n != 0)
     {
@@ -147,7 +147,7 @@ void ASCON_128_decrypt(uint64_t *data, const uint64_t key[2], const uint64_t non
     if(l != 0)
     {
         data[num_blocks-1] = (state[0] >> (64-l)) ^ ciphertext[num_blocks-1];
-        state[0] = (ciphertext[num_blocks-1] << (64-l) ) | ((state[0] & ((1ULL << 64-l) - 1)) ^ (0x1 << (63-l)));
+        state[0] ^= (data[num_blocks-1] << (64-l)) | (0x1 << (63-l));
     }
     else
     {
@@ -157,6 +157,189 @@ void ASCON_128_decrypt(uint64_t *data, const uint64_t key[2], const uint64_t non
 
     state[1] ^= key[0];
     state[2] ^= key[1];
+    p(state, 12);
+
+    tag[0] = state[3] ^ key[0];
+    tag[1] = state[4] ^ key[1];
+}
+
+
+void ASCON_128a_encrypt(uint64_t *data, const uint64_t key[2], const uint64_t nonce[2], uint64_t *ad_data,
+    const size_t len_data, const size_t len_ad_data, uint64_t *ciphertext, uint64_t *tag)
+{
+    size_t l = len_data % 128;
+    size_t n = len_ad_data % 128;
+
+    size_t num_blocks = (len_data+127) / 128;         //+127 to count incomplete blocks
+    size_t num_ad_blocks = (len_ad_data+127) / 128;   //+127 to count incomplete blocks
+
+    if (l != 0)
+    {
+        if(l < 64)
+        {
+            data[2*num_blocks-2] = (data[2*num_blocks-1] << (64-l)) | (0x1 << (63-l));
+            data[2*num_blocks-1] = 0;
+        }
+        else
+        {
+            data[2*num_blocks-2] = (data[2*num_blocks-2] << (128-l)) | (data[2*num_blocks-1] >> (l-64));
+            data[2*num_blocks-1] = (data[2*num_blocks-1] << (128-l)) | (0x1 << (127-l));
+        }
+    }
+    if(n != 0)
+    {
+        if(n < 64)
+        {
+            ad_data[2*num_ad_blocks-2] = (ad_data[2*num_ad_blocks-1] << (64-n)) | (0x1 << (63-n));
+            ad_data[2*num_ad_blocks-1] = 0;
+        }
+        else
+        {
+            ad_data[2*num_blocks-2] = (ad_data[2*num_blocks-2] << (128-n)) | (ad_data[2*num_blocks-1] >> (n-64));
+            ad_data[2*num_blocks-1] = (ad_data[2*num_blocks-1] << (128-n)) | (0x1 << (127-n));
+        }
+    }
+
+    uint64_t state[5];
+    state[0] = 0x80800c0800000000;
+    state[1] = key[0];
+    state[2] = key[1];
+    state[3] = nonce[0];
+    state[4] = nonce[1];
+
+    p(state, 12);
+    state[0] ^= 0x0000000000000000;
+    state[1] ^= 0x0000000000000000;
+    state[2] ^= 0x0000000000000000;
+    state[3] ^= key[0];
+    state[4] ^= key[1];
+
+    for(int i = 0; i < num_ad_blocks; i++)
+    {
+        state[0] ^= ad_data[2*i];
+        state[1] ^= ad_data[2*i+1];
+        p(state,8);
+    }
+    state[4] ^= 0x0000000000000001;
+
+    for(int i = 0; i < num_blocks-1; i++)
+    {
+        state[0] ^= data[2*i];
+        state[1] ^= data[2*i+1];
+        ciphertext[2*i] = state[0];
+        ciphertext[2*i+1] = state[1];
+        p(state,8);
+    }
+
+    state[0] ^= data[2*num_blocks-2];
+    state[1] ^= data[2*num_blocks-1];
+    if(l != 0)
+    {
+        if(l < 64)
+        {
+            ciphertext[2*num_blocks-1] = (state[0] >> (64-l));
+            ciphertext[2*num_blocks-2] = 0;
+        }
+        else
+        {
+            ciphertext[2*num_blocks-1] = (state[0] << (l-64)) | (state[1] >> (128-l));
+            ciphertext[2*num_blocks-2] = (state[0] >> (128-l));
+        }
+    }
+    else
+    {
+        ciphertext[2*num_blocks-2] = state[0];
+        ciphertext[2*num_blocks-1] = state[1];
+    }
+
+    state[2] ^= key[0];
+    state[3] ^= key[1];
+    p(state, 12);
+
+    tag[0] = state[3] ^ key[0];
+    tag[1] = state[4] ^ key[1];
+}
+
+void ASCON_128a_decrypt(uint64_t *data, const uint64_t key[2], const uint64_t nonce[2], uint64_t *ad_data,
+    const size_t len_data, const size_t len_ad_data, uint64_t *ciphertext, uint64_t *tag)
+{
+    size_t l = len_data % 128;
+    size_t n = len_ad_data % 128;
+
+    size_t num_blocks = (len_data+127) / 128;         //+127 to count incomplete blocks
+    size_t num_ad_blocks = (len_ad_data+127) / 128;   //+127 to count incomplete blocks
+
+    if(n != 0)
+    {
+        if(n < 64)
+        {
+            ad_data[2*num_ad_blocks-2] = (ad_data[2*num_ad_blocks-1] << (64-n)) | (0x1 << (63-n));
+            ad_data[2*num_ad_blocks-1] = 0;
+        }
+        else
+        {
+            ad_data[2*num_blocks-2] = (ad_data[2*num_blocks-2] << (128-n)) | (ad_data[2*num_blocks-1] >> (n-64));
+            ad_data[2*num_blocks-1] = (ad_data[2*num_blocks-1] << (128-n)) | (0x1 << (127-n));
+        }
+    }
+
+    uint64_t state[5];
+    state[0] = 0x80800c0800000000;
+    state[1] = key[0];
+    state[2] = key[1];
+    state[3] = nonce[0];
+    state[4] = nonce[1];
+
+    p(state, 12);
+    state[0] ^= 0x0000000000000000;
+    state[1] ^= 0x0000000000000000;
+    state[2] ^= 0x0000000000000000;
+    state[3] ^= key[0];
+    state[4] ^= key[1];
+
+    for(int i = 0; i < num_ad_blocks; i++)
+    {
+        state[0] ^= ad_data[2*i];
+        state[1] ^= ad_data[2*i+1];
+        p(state,8);
+    }
+    state[4] ^= 0x0000000000000001;
+
+    for(int i = 0; i < num_blocks-1; i++)
+    {
+        data[2*i] = state[0] ^ ciphertext[2*i];
+        data[2*i+1] = state[1] ^ ciphertext[2*i+1];
+        state[0] = ciphertext[2*i];
+        state[1] = ciphertext[2*i+1];
+        p(state,8);
+    }
+
+    if(l != 0)
+    {
+        if(l < 64)
+        {
+            data[2*num_blocks-1] = (state[0] >> (64-l)) ^ ciphertext[2*num_blocks-1];
+            data[2*num_blocks-2] = 0;
+            state[0] ^= (data[2*num_blocks-1] << (64-l)) | (0x1 << (63-l));
+        }
+        else
+        {
+            data[2*num_blocks-2] = (state[0] >> (128-l)) ^ ciphertext[2*num_blocks-2];
+            data[2*num_blocks-2] = ((state[0] << (l-64)) | (state[1] >> (128-l))) ^ ciphertext[2*num_blocks-1];
+            state[0] ^= (data[2*num_blocks-2] << (128-l)) | (data[2*num_blocks-1] >> (l-64));
+            state[1] ^= data[2*num_blocks-1] = (data[2*num_blocks-1] << (128-l)) | (0x1 << (127-l));
+        }
+    }
+    else
+    {
+        data[2*num_blocks-2] = state[0] ^ ciphertext[2*num_blocks-2];
+        data[2*num_blocks-1] = state[1] ^ ciphertext[2*num_blocks-1];
+        state[0] = ciphertext[2*num_blocks-2];
+        state[1] = ciphertext[2*num_blocks-1];
+    }
+
+    state[2] ^= key[0];
+    state[3] ^= key[1];
     p(state, 12);
 
     tag[0] = state[3] ^ key[0];

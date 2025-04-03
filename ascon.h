@@ -16,4 +16,10 @@ void ASCON_128_encrypt(uint64_t *data, const uint64_t key[2], const uint64_t non
 void ASCON_128_decrypt(uint64_t *data, const uint64_t key[2], const uint64_t nonce[2], uint64_t *ad_data,
     const size_t len_data, const size_t len_ad_data, uint64_t *ciphertext, uint64_t *tag);
 
+void ASCON_128a_encrypt(uint64_t *data, const uint64_t key[2], const uint64_t nonce[2], uint64_t *ad_data,
+    const size_t len_data, const size_t len_ad_data, uint64_t *ciphertext, uint64_t *tag);
+
+void ASCON_128a_decrypt(uint64_t *data, const uint64_t key[2], const uint64_t nonce[2], uint64_t *ad_data,
+    const size_t len_data, const size_t len_ad_data, uint64_t *ciphertext, uint64_t *tag);
+
 #endif //ASCON_H
