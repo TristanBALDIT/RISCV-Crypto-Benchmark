@@ -378,11 +378,11 @@ void galois_mult(uint32_t Z[4], const uint32_t X[4], const uint32_t Y[4]) {
 }
 
 // Fonction GHASH
-void ghash_AD(uint32_t output[4], const uint32_t *input, int len, const uint32_t H[4]) {
+void ghash_AD(uint32_t output[4], const uint32_t *input, int num_blocks, const uint32_t H[4]) {
     uint32_t Y[4] = {0, 0, 0, 0};  // Y_0 = 0
 
     // Traitement bloc par bloc (taille de 128 bits = 4 * 32 bits)
-    for (int i = 0; i < len / 16; i++) {
+    for (int i = 0; i < num_blocks; i++) {
         // XOR du bloc en entrée avec l'état actuel
         Y[0] ^= input[i * 4 + 0];
         Y[1] ^= input[i * 4 + 1];
@@ -390,22 +390,6 @@ void ghash_AD(uint32_t output[4], const uint32_t *input, int len, const uint32_t
         Y[3] ^= input[i * 4 + 3];
 
         // Multiplication dans GF(2^128)
-        galois_mult(Y, Y, H);
-    }
-
-    // Gestion du dernier bloc s’il ne fait pas 16 octets
-    int remainder = len % 16;
-    if (remainder > 0) {
-        uint32_t X[4] = {0, 0, 0, 0};
-        memcpy(X, input + (len / 16) * 4, remainder);
-
-        // XOR du dernier bloc incomplet
-        Y[0] ^= X[0];
-        Y[1] ^= X[1];
-        Y[2] ^= X[2];
-        Y[3] ^= X[3];
-
-        // Multiplication finale
         galois_mult(Y, Y, H);
     }
 

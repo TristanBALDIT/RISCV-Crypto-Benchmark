@@ -8,6 +8,7 @@
 #include "chacha/poly1305.h"
 #include  "loader.h"
 #include "ascon.h"
+//#include "util.h"
 
 void print_state(uint32_t state[4])
 {
@@ -15,7 +16,7 @@ void print_state(uint32_t state[4])
     {
         printf("%08X ", state[j]);
     }
-    printf("\n");
+    printf("\r\n");
 }
 
 void print_chacha_block(uint32_t block[16])
@@ -24,11 +25,11 @@ void print_chacha_block(uint32_t block[16])
     {
         if (i % 4 == 0)
         {
-            printf("\n");
+            printf("\r\n");
         }
         printf("%08X ", block[i]);
     }
-    printf("\n");
+    printf("\r\n");
 }
 
 
@@ -37,6 +38,16 @@ int main() {
                            /* KEY & BLOCKS GENERATION  */
 
     //size_t instret, cycles;
+
+    int iterations = 100;
+    int blocks = 100;
+    int ad_bits = 512;
+    int ad_32b_words = ad_bits/32;
+    int ad_64b_words = ad_bits/64;
+    int chacha_ad_block = ad_bits / 512;
+    int aes_ad_blocks = ad_bits / 128;
+    int ascon128a_ad_blocks = ad_bits / 128;
+    int ascon128_ad_blocks = ad_bits / 64;
 
     // Known vector for AES
     uint32_t test_key[4] = {0x2b7e1516, 0x28aed2a6, 0xabf71588, 0x09cf4f3c};
@@ -64,27 +75,37 @@ int main() {
 
     // Data generation for AES/CHACHA
     uint32_t *key  = generate_random_32bit_words(8);
-    uint32_t *block_10 = generate_random_32bit_words(360);
-    uint32_t *ad_block_10 = generate_random_32bit_words(360);
+    uint32_t *d_blocks = generate_random_32bit_words(16*blocks);
+    uint32_t *ad_blocks = generate_random_32bit_words(16*ad_32b_words);
     uint32_t *iv = generate_random_32bit_words(4);
     uint32_t *nonce = generate_random_32bit_words(3);
 
-    uint64_t ce;
-    uint64_t cd;
-    uint64_t iterations = 100;
+    uint64_t ciphertext[2*blocks];
+    uint64_t tag[2];
+    uint64_t *plaintext = generate_random_64bit_words(2*blocks);
+    uint64_t *key_ascon = generate_random_64bit_words(2);
+    uint64_t *nonce_ascon = generate_random_64bit_words(2);
+    uint64_t *ad_data = generate_random_64bit_words(ad_64b_words);
+    uint64_t result[2*blocks];
 
+    size_t ce;
+    size_t cd;
+    
+    printf("RISCV CRYPTO BENCHMARK \r\n\r\n");
+    printf("%d iterations , %d blocks, %d additionnal bits \r\n\r\n", iterations, blocks, ad_bits);
+    
                             /* AES BENCHMARK */
 
-    printf("AES BENCHMARK \n\n");
+    printf("AES BENCHMARK \r\n\r\n");
 
     initialize_aes_sbox();
-    printf("Simple Block Encryption-Decryption\n\n");
+    printf("Simple Block Encryption-Decryption\r\n\r\n");
 
     // AES EBC 1 Block - 100 iterations
     for(int i = 4; i < 10; i+=2)
     {
         ce =0, cd = 0;
-        printf("KEY SIZE : %d \n", 32*i);
+        printf("KEY SIZE : %d \r\n", 32*i);
         for (int e = 0; e < iterations; e++)
         {
             if (e == 0)
@@ -106,8 +127,8 @@ int main() {
             {
                 printf("Ciphertext :");
                 print_state(test_state);
-                //printf("%d instructions\n", (int)(instret));
-                //printf("%d cycles\n\n", (int)(cycles));
+                //printf("%d instructions\r\n", (int)(instret));
+                //printf("%d cycles\r\n\r\n", (int)(cycles));
             }
 
             //instret_e = -read_csr(minstret);
@@ -123,23 +144,23 @@ int main() {
             {
                 printf("Final Plaintext :");
                 print_state(test_state);
-                //printf("%d instructions\n", (int)(instret));
-                //printf("%d cycles\n\n", (int)(cycles));
+                //printf("%d instructions\r\n", (int)(instret));
+                //printf("%d cycles\r\n\r\n", (int)(cycles));
             }
         }
-        printf("Total cycles for %llu iterations :\n", iterations);
-        printf("Encryption : %llu \n", ce);
-        printf("Decryption : %llu \n\n\n", cd);
+        printf("Total cycles for %d iterations :\r\n", iterations);
+        printf("Encryption : %d \r\n", (int) (ce));
+        printf("Decryption : %d \r\n\r\n\r\n", (int) (cd));
     }
 
 
-    printf("AES-ECB 10 Blocks\n");
+    printf("AES-ECB %d Blocks\r\n", blocks);
 
 
     for(int i=4; i < 10; i+=2)
     {
         ce =0, cd = 0;
-        printf("KEY SIZE : %d \n", 32*i);
+        printf("KEY SIZE : %d \r\n", 32*i);
         for(int e = 0; e < iterations; e++)
         {
 
@@ -157,9 +178,9 @@ int main() {
 
             if(e == 0)
             {
-                //printf("Encryption : \n");
-                //printf("%d instructions\n", (int)(instret));
-                //printf("%d cycles\n\n", (int)(cycles));
+                //printf("Encryption : \r\n");
+                //printf("%d instructions\r\n", (int)(instret));
+                //printf("%d cycles\r\n\r\n", (int)(cycles));
             }
 
             //instret = -read_csr(minstret);
@@ -176,31 +197,31 @@ int main() {
 
             if(e == 0)
             {
-                //printf("Decryption : \n");
-                //printf("%d instructions\n", (int)(instret));
-                //printf("%d cycles\n\n", (int)(cycles));
+                //printf("Decryption : \r\n");
+                //printf("%d instructions\r\n", (int)(instret));
+                //printf("%d cycles\r\n\r\n", (int)(cycles));
             }
 
         }
-        printf("Total cycles for %llu iterations :\n", iterations);
-        printf("Encryption : %llu \n", ce);
-        printf("Decryption : %llu \n\n\n", cd);
+        printf("Total cycles for %d iterations :\r\n", iterations);
+        printf("Encryption : %d \r\n", (int) (ce));
+        printf("Decryption : %d \r\n\r\n\r\n", (int) (cd));
     }
 
 
 
-    printf("AES-CBC 10 Blocks\n");
+    printf("AES-CBC %d Blocks\r\n", blocks);
 
     for(int i=4; i < 10; i+=2)
     {
         ce =0, cd = 0;
-        printf("KEY SIZE : %d \n", 32*i);
+        printf("KEY SIZE : %d \r\n", 32*i);
         for(int e=0; e < iterations; e++)
         {
             //instret = -read_csr(minstret);
             //cycles = -read_csr(mcycle);
 
-            aes_cbc_encrypt(block_10, 10, key, iv, i);
+            aes_cbc_encrypt(d_blocks, blocks, key, iv, i);
 
             //instret += read_csr(minstret);
             //cycles += read_csr(mcycle);
@@ -208,15 +229,15 @@ int main() {
 
             if(e == 0)
             {
-                //printf("Encryption : \n");
-                //printf("%d instructions\n", (int)(instret));
-                //printf("%d cycles\n\n", (int)(cycles));
+                //printf("Encryption : \r\n");
+                //printf("%d instructions\r\n", (int)(instret));
+                //printf("%d cycles\r\n\r\n", (int)(cycles));
             }
 
             //instret = -read_csr(minstret);
             //cycles = -read_csr(mcycle);
 
-            aes_cbc_decrypt(block_10, 10, key, iv, i);
+            aes_cbc_decrypt(d_blocks, blocks, key, iv, i);
 
             //instret += read_csr(minstret);
             //cycles += read_csr(mcycle);
@@ -224,28 +245,28 @@ int main() {
 
             if(e == 0)
             {
-                //printf("Decryption : \n");
-                //printf("%d instructions\n", (int)(instret));
-                //printf("%d cycles\n\n", (int)(cycles));
+                //printf("Decryption : \r\n");
+                //printf("%d instructions\r\n", (int)(instret));
+                //printf("%d cycles\r\n\r\n", (int)(cycles));
             }
         }
-        printf("Total cycles for %llu iterations :\n", iterations);
-        printf("Encryption : %llu \n", ce);
-        printf("Decryption : %llu \n\n\n", cd);
+        printf("Total cycles for %d iterations :\r\n", iterations);
+        printf("Encryption : %d \r\n", (int) (ce));
+        printf("Decryption : %d \r\n\r\n\r\n", (int) (cd));
     }
 
-    printf("AES-CTR 10 Blocks\n");
+    printf("AES-CTR %d Blocks\r\n", blocks);
 
     for(int i=4; i < 10; i+=2)
     {
         ce =0, cd = 0;
-        printf("KEY SIZE : %d \n", 32*i);
+        printf("KEY SIZE : %d \r\n", 32*i);
         for(int e=0; e < iterations; e++)
         {
             //instret = -read_csr(minstret);
             //cycles = -read_csr(mcycle);
 
-            aes_ctr(block_10, 10, key, iv, i);
+            aes_ctr(d_blocks, blocks, key, iv, i);
 
             //instret += read_csr(minstret);
             //cycles += read_csr(mcycle);
@@ -253,17 +274,17 @@ int main() {
 
             if(e == 0)
             {
-                //printf("Encryption - Decryption : \n");
-                //printf("%d instructions\n", (int)(instret));
-                //printf("%d cycles\n\n", (int)(cycles));
+                //printf("Encryption - Decryption : \r\n");
+                //printf("%d instructions\r\n", (int)(instret));
+                //printf("%d cycles\r\n\r\n", (int)(cycles));
             }
 
         }
-        printf("Total cycles for %llu iterations :\n", iterations);
-        printf("Encryption - Decryption : %llu \n\n\n", ce);
+        printf("Total cycles for %d iterations :\r\n", iterations);
+        printf("Encryption - Decryption : %d \r\n\r\n\r\n", (int) (ce));
     }
 
-    printf("AES-GCM Test Vector\n");
+    printf("AES-GCM Test Vector\r\n");
 
     uint32_t Test_mac[4];
     aes_gcm(aes_gcm_test_block,aes_gcm_test_ad,1,0,aes_gcm_test_key,aes_gcm_test_iv,4,Test_mac);
@@ -271,19 +292,19 @@ int main() {
     printf("MAC :");
     print_state(Test_mac);
 
-    printf("AES-GCM 10 Blocks\n");
+    printf("AES-GCM %d Blocks\r\n", blocks);
 
     uint32_t T[4];
     for(int i=4; i < 10; i+=2)
     {
         ce =0, cd = 0;
-        printf("KEY SIZE : %d \n", 32*i);
+        printf("KEY SIZE : %d \r\n", 32*i);
         for(int e = 0; e < iterations; e++)
         {
             //instret = -read_csr(minstret);
             //cycles = -read_csr(mcycle);
 
-            aes_gcm(block_10, ad_block_10, 10, 10, key, iv, i, T);
+            aes_gcm(d_blocks, ad_blocks, blocks, aes_ad_blocks, key, iv, i, T);
 
             //instret += read_csr(minstret);
             //cycles += read_csr(mcycle);
@@ -291,22 +312,22 @@ int main() {
 
             if(e == 0)
             {
-                //printf("Encryption - Decryption : \n");
-                //printf("%d instructions\n", (int)(instret));
-                //printf("%d cycles\n\n", (int)(cycles));
+                //printf("Encryption - Decryption : \r\n");
+                //printf("%d instructions\r\n", (int)(instret));
+                //printf("%d cycles\r\n\r\n", (int)(cycles));
             }
         }
-        printf("Total cycles for %llu iterations :\n", iterations);
-        printf("Encryption - Decryption : %llu \n\n\n", ce);
+        printf("Total cycles for %d iterations :\r\n", iterations);
+        printf("Encryption - Decryption : %d \r\n\r\n\r\n", (int) (ce));
     }
 
 
                     /* Chacha20 BENCHMARK */
 
-    printf("ChaCha20 Benchmark\n\n");
+    printf("ChaCha20 Benchmark\r\n\r\n");
 
     // KeyBlock Test Vector Verification + 1 Block Benchmark
-    printf("ChaCha20 KeyBlock Test Vector Verification & 1 Block benchmark\n\n");
+    printf("ChaCha20 KeyBlock Test Vector Verification & 1 Block benchmark\r\n\r\n");
 
     ce =0, cd = 0;
     for(int e = 0; e < iterations; e++)
@@ -325,19 +346,19 @@ int main() {
 
         if(e == 0)
         {
-            //printf("Chacha20 1 Block : \n");
-            //printf("%d instructions\n", (int)(instret));
-            //printf("%d cycles\n\n", (int)(cycles));
+            //printf("Chacha20 1 Block : \r\n");
+            //printf("%d instructions\r\n", (int)(instret));
+            //printf("%d cycles\r\n\r\n", (int)(cycles));
             print_chacha_block(block);
         }
     }
-    printf("Total cycles for %llu iterations :\n", iterations);
-    printf("Encryption - Decryption : %llu \n\n\n", ce);
+    printf("Total cycles for %d iterations :\r\n", iterations);
+    printf("Encryption - Decryption : %d \r\n\r\n\r\n", (int) (ce));
 
     //Poly1305 Test Vector
     test_poly1305();
 
-    printf("ChaCha20 10 Blocs \n\n");
+    printf("ChaCha20 %d Blocs \r\n\r\n", blocks);
 
     ce =0, cd = 0;
     for(int e = 0; e < iterations; e++)
@@ -345,7 +366,7 @@ int main() {
         //instret = -read_csr(minstret);
         //cycles = -read_csr(mcycle);
 
-        Chacha20(block_10, key, nonce, 10);
+        Chacha20(d_blocks, key, nonce, 10);
 
         //instret += read_csr(minstret);
         //cycles += read_csr(mcycle);
@@ -353,24 +374,23 @@ int main() {
 
         if(e == 0)
         {
-            //printf("Chacha20 10 Block : \n");
-            //printf("%d instructions\n", (int)(instret));
-            //printf("%d cycles\n\n", (int)(cycles));
+            //printf("Chacha20 10 Block : \r\n");
+            //printf("%d instructions\r\n", (int)(instret));
+            //printf("%d cycles\r\n\r\n", (int)(cycles));
         }
     }
-    printf("Total cycles for %llu iterations :\n", iterations);
-    printf("Encryption - Decryption : %llu \n\n\n", ce);
+    printf("Total cycles for %d iterations :\r\n", iterations);
+    printf("Encryption - Decryption : %d \r\n\r\n\r\n", (int) (ce));
 
-    printf("ChaCha20-Poly1305 10 Blocs \n\n");
+    printf("ChaCha20-Poly1305 %d Blocs \r\n\r\n", blocks);
 
     uint8_t mac[16];
-
     for(int e = 0; e < iterations; e++)
     {
         //instret = -read_csr(minstret);
         //cycles = -read_csr(mcycle);
 
-        Chacha20_Poly1305(block_10, ad_block_10, key, nonce, 10, 10, mac);
+        Chacha20_Poly1305(d_blocks, ad_blocks, key, nonce, blocks, chacha_ad_block, mac);
 
         //instret += read_csr(minstret);
         //cycles += read_csr(mcycle);
@@ -378,43 +398,36 @@ int main() {
 
         if(e == 0)
         {
-            //printf("Chacha20-Poly1305 10 Block : \n");
-            //printf("%d instructions\n", (int)(instret));
-            //printf("%d cycles\n\n", (int)(cycles));
+            //printf("Chacha20-Poly1305 10 Block : \r\n");
+            //printf("%d instructions\r\n", (int)(instret));
+            //printf("%d cycles\r\n\r\n", (int)(cycles));
         }
     }
-    printf("Total cycles for %llu iterations :\n", iterations);
-    printf("Encryption - Decryption : %llu \n\n\n", ce);
+    printf("Total cycles for %d iterations :\r\n", iterations);
+    printf("Encryption - Decryption : %d \r\n\r\n\r\n", (int) (ce));
 
                     /* ASCON BENCHMARK */
 
-    uint64_t ciphertext[20];
-    uint64_t tag[2];
-    uint64_t *plaintext = generate_random_64bit_words(20);
-    uint64_t *key_ascon = generate_random_64bit_words(2);
-    uint64_t *nonce_ascon = generate_random_64bit_words(2);
-    uint64_t *ad_data = generate_random_64bit_words(10);
-    uint64_t result[20];
 
-    printf("ASCON_128 Test Vector / 10 Blocs\n\n");
+    printf("ASCON_128 Test Vector / %d Blocs\r\n\r\n", blocks);
 
     ce =0, cd = 0;
     for (int e = 0; e < iterations; e++)
     {
         if(e == 0)
         {
-            printf("plain\n");
+            printf("plain\r\n");
             for (int i = 0; i < 10; i++)
             {
                 printf("%016llX ", plaintext[i]);
             }
-            printf("\n");
+            printf("\r\n");
         }
 
         //instret = -read_csr(minstret);
         //cycles = -read_csr(mcycle);
 
-        ASCON_128_encrypt(plaintext, key_ascon, nonce_ascon, ad_data, 640, 320, ciphertext, tag);
+        ASCON_128_encrypt(plaintext, key_ascon, nonce_ascon, ad_data, blocks*64, ad_bits, ciphertext, tag);
 
         //instret += read_csr(minstret);
         //cycles += read_csr(mcycle);
@@ -422,21 +435,21 @@ int main() {
 
         if(e == 0)
         {
-            //printf("ASCON 10 Block Encrypt: \n");
-            //printf("%d instructions\n", (int)(instret));
-            //printf("%d cycles\n\n", (int)(cycles));
-            printf("cipher\n");
+            //printf("ASCON 10 Block Encrypt: \r\n");
+            //printf("%d instructions\r\n", (int)(instret));
+            //printf("%d cycles\r\n\r\n", (int)(cycles));
+            printf("cipher\r\n");
             for (int i = 0; i < 10; i++)
             {
                 printf("%016llX ", ciphertext[i]);
             }
-            printf("\n");
+            printf("\r\n");
         }
 
         //instret = -read_csr(minstret);
         //cycles = -read_csr(mcycle);
 
-        ASCON_128_decrypt(result, key_ascon, nonce_ascon, ad_data, 640, 320, ciphertext, tag);
+        ASCON_128_decrypt(result, key_ascon, nonce_ascon, ad_data, 64*blocks, ad_bits, ciphertext, tag);
 
         //instret += read_csr(minstret);
         //cycles += read_csr(mcycle);
@@ -444,23 +457,23 @@ int main() {
 
         if(e == 0)
         {
-            //printf("ASCON_128 10 Blocks Decrypt : \n");
-            //printf("%d instructions\n", (int)(instret));
-            //printf("%d cycles\n\n", (int)(cycles));
-            printf("plain \n");
+            //printf("ASCON_128 10 Blocks Decrypt : \r\n");
+            //printf("%d instructions\r\n", (int)(instret));
+            //printf("%d cycles\r\n\r\n", (int)(cycles));
+            printf("plain \r\n");
             for (int i = 0; i < 10; i++)
             {
                 printf("%016llX ", result[i]);
             }
-            printf("\n");
+            printf("\r\n");
         }
     }
-    printf("Total cycles for %llu iterations :\n", iterations);
-    printf("Encryption : %llu \n", ce);
-    printf("Decryption : %llu \n\n\n", cd);
+    printf("Total cycles for %d iterations :\r\n", iterations);
+    printf("Encryption : %d \r\n", (int) (ce));
+    printf("Decryption : %d \r\n\r\n\r\n", (int) (cd));
 
 
-    printf("ASCON_128a 10 Blocks\n\n");
+    printf("ASCON_128a %d Blocks\r\n\r\n", blocks);
 
     ce =0, cd = 0;
     for(int e = 0; e < iterations; e++)
@@ -468,7 +481,7 @@ int main() {
         //instret = -read_csr(minstret);
         //cycles = -read_csr(mcycle);
 
-        ASCON_128a_encrypt(plaintext, key_ascon, nonce_ascon, ad_data, 1280, 640, ciphertext, tag);
+        ASCON_128a_encrypt(plaintext, key_ascon, nonce_ascon, ad_data, blocks*128, ad_bits, ciphertext, tag);
 
         //instret += read_csr(minstret);
         //cycles += read_csr(mcycle);
@@ -476,15 +489,15 @@ int main() {
 
         if(e == 0)
         {
-            //printf("ASCON_128a 10 Block Encrypt: \n");
-            //printf("%d instructions\n", (int)(instret));
-            //printf("%d cycles\n\n", (int)(cycles));
+            //printf("ASCON_128a 10 Block Encrypt: \r\n");
+            //printf("%d instructions\r\n", (int)(instret));
+            //printf("%d cycles\r\n\r\n", (int)(cycles));
         }
 
         //instret = -read_csr(minstret);
         //cycles = -read_csr(mcycle);
 
-        ASCON_128a_decrypt(result, key_ascon, nonce_ascon, ad_data, 1280, 640, ciphertext, tag);
+        ASCON_128a_decrypt(result, key_ascon, nonce_ascon, ad_data, 128*blocks, ad_bits, ciphertext, tag);
 
         //instret += read_csr(minstret);
         //cycles += read_csr(mcycle);
@@ -492,19 +505,19 @@ int main() {
 
         if(e == 0)
         {
-            //printf("ASCON_128a 10 Blocks Decrypt : \n");
-            //printf("%d instructions\n", (int)(instret));
-            //printf("%d cycles\n\n", (int)(cycles));
+            //printf("ASCON_128a 10 Blocks Decrypt : \r\n");
+            //printf("%d instructions\r\n", (int)(instret));
+            //printf("%d cycles\r\n\r\n", (int)(cycles));
         }
     }
-    printf("Total cycles for %llu iterations :\n", iterations);
-    printf("Encryption : %llu \n", ce);
-    printf("Decryption : %llu \n\n\n", cd);
+    printf("Total cycles for %d iterations :\r\n", iterations);
+    printf("Encryption : %d \r\n", (int) (ce));
+    printf("Decryption : %d \r\n\r\n\r\n", (int) (ce));
 
     //Free
     free(key);
-    free(block_10);
-    free(ad_block_10);
+    free(d_blocks);
+    free(ad_blocks);
     free(nonce);
     free(iv);
     free(plaintext);
