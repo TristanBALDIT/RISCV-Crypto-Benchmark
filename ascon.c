@@ -63,9 +63,6 @@ void ASCON_128_encrypt(uint64_t *data, const uint64_t key[2], const uint64_t non
     state[4] = nonce[1];
 
     p(state, 12);
-    state[0] ^= 0x0000000000000000;
-    state[1] ^= 0x0000000000000000;
-    state[2] ^= 0x0000000000000000;
     state[3] ^= key[0];
     state[4] ^= key[1];
 
@@ -124,9 +121,6 @@ void ASCON_128_decrypt(uint64_t *data, const uint64_t key[2], const uint64_t non
     state[4] = nonce[1];
 
     p(state, 12);
-    state[0] ^= 0x0000000000000000;
-    state[1] ^= 0x0000000000000000;
-    state[2] ^= 0x0000000000000000;
     state[3] ^= key[0];
     state[4] ^= key[1];
 
@@ -208,9 +202,6 @@ void ASCON_128a_encrypt(uint64_t *data, const uint64_t key[2], const uint64_t no
     state[4] = nonce[1];
 
     p(state, 12);
-    state[0] ^= 0x0000000000000000;
-    state[1] ^= 0x0000000000000000;
-    state[2] ^= 0x0000000000000000;
     state[3] ^= key[0];
     state[4] ^= key[1];
 
@@ -291,9 +282,6 @@ void ASCON_128a_decrypt(uint64_t *data, const uint64_t key[2], const uint64_t no
     state[4] = nonce[1];
 
     p(state, 12);
-    state[0] ^= 0x0000000000000000;
-    state[1] ^= 0x0000000000000000;
-    state[2] ^= 0x0000000000000000;
     state[3] ^= key[0];
     state[4] ^= key[1];
 
