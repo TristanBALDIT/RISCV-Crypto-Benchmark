@@ -130,8 +130,8 @@ int main() {
                 print_state(test_state);
             }
 
-            //instret_e = -read_csr(minstret);
-            //cycles_e = -read_csr(mcycle);
+            //instret = -read_csr(minstret);
+            //cycles = -read_csr(mcycle);
 
             encryptBlock(test_state, test_key, i);
 
@@ -151,8 +151,8 @@ int main() {
 
             min_max_update(ce, &min_e, &max_e);
 
-            //instret_e = -read_csr(minstret);
-            //cycles_e = -read_csr(mcycle);
+            //instret = -read_csr(minstret);
+            //cycles = -read_csr(mcycle);
 
             decryptBlock(test_state, test_key, i);
 
