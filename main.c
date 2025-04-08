@@ -117,7 +117,7 @@ int main() {
     initialize_aes_sbox();
     printf("Simple Block Encryption-Decryption\r\n\r\n");
 
-    // AES EBC 1 Block - 100 iterations
+    // AES EBC 1 Block
     for(int i = 4; i < 10; i+=2)
     {
         ce =0, cd = 0;
@@ -190,7 +190,7 @@ int main() {
             //instret = -read_csr(minstret);
             //cycles = -read_csr(mcycle);
 
-            for(int j=0; j < 10; j++)
+            for(int j=0; j < blocks; j++)
             {
                 encryptBlock(test_state, test_key, i);
             }
@@ -212,7 +212,7 @@ int main() {
             //instret = -read_csr(minstret);
             //cycles = -read_csr(mcycle);
 
-            for(int j=0; j < 10; j++)
+            for(int j=0; j < blocks; j++)
             {
                 decryptBlock(test_state, test_key, i);
             }
