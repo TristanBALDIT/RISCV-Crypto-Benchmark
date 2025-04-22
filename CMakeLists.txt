@@ -15,5 +15,5 @@ add_executable(RISCV_Crypto_Benchmark main.c
         chacha/poly1305.h
         monocypher.c
         monocypher.h
-        ascon.c
-        ascon.h)
+        ascon/ascon.c
+        ascon/ascon.h)
