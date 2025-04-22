@@ -429,6 +429,7 @@ int main() {
     printf("ChaCha20-Poly1305 %d Blocs \r\n\r\n", blocks);
 
     uint8_t mac[16];
+    ce = 0, cd = 0;
     for(int e = 0; e < iterations; e++)
     {
         //instret = -read_csr(minstret);
