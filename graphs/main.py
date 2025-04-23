@@ -88,6 +88,7 @@ if plot_bubbles:
 # Cycles per blocks number
 if plot_cycles_per_blocks:
     plt.figure(figsize=(10, 6))
+    print('REGRESSSION LINEAIRE\n')
 
     # creating the trace for each algorithm
     for algo_name, data in algorithms.items():
@@ -123,12 +124,12 @@ if plot_cycles_per_blocks:
         plt.xscale('log', base=2)
         plt.yscale('log', base=2)
     plt.tight_layout()
-    print('')
-    print('')
+    print('\n\n')
 
 # Instructions per blocks number
 if plot_instructions_per_blocks:
     plt.figure(figsize=(10, 6))
+    print('REGRESSION LINEAIRE\n')
 
     for algo_name, data in algorithms.items():
         plt.plot(data['blocks'], data['instructions'],
@@ -153,7 +154,7 @@ if plot_instructions_per_blocks:
         plt.xscale('log', base=2)
         plt.yscale('log', base=2)
     plt.tight_layout()
-
+    print('\n')
 
 if plot_cycles_per_bit_per_blocks:
     plt.figure(figsize=(10, 6))
@@ -248,7 +249,9 @@ if plot_cycles_per_iteration:
 
 # Cycles per AD size
 if plot_cycles_per_ad:
+
     plt.figure(figsize=(10, 6))
+    print('REGRESSION LINEAIRE\n')
 
     for algo_name, data in algorithms_AD.items():
         plt.errorbar(
@@ -267,6 +270,9 @@ if plot_cycles_per_ad:
             linestyle='-',
             linewidth=1
         )
+        slope, intercept, r_value, p_value, std_err = linregress(data['AD'], data['mean_cycles'])
+        print(f'{algo_name} fit (R²={r_value ** 2:.2f})')
+        print(slope, intercept, r_value, std_err)
 
     plt.xlabel('AD (bits)')
     plt.ylabel('Cycles ')
@@ -274,10 +280,13 @@ if plot_cycles_per_ad:
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.legend(loc='upper left', bbox_to_anchor=(1, 1))
     plt.tight_layout()
+    print('\n\n')
 
 # Instructions per AD size
 if plot_instructions_per_ad:
+
     plt.figure(figsize=(10, 6))
+    print('REGRESSION LINEAIRE\n')
 
     for algo_name, data in algorithms_AD.items():
         plt.plot(data['AD'], data['instructions'],
@@ -288,6 +297,9 @@ if plot_instructions_per_ad:
                  alpha=1,
                  linestyle='-',
                  linewidth=1)
+        slope, intercept, r_value, p_value, std_err = linregress(data['AD'], data['instructions'])
+        print(f'{algo_name} fit (R²={r_value ** 2:.2f})')
+        print(slope, intercept, r_value, std_err)
 
     plt.xlabel('AD (bits)')
     plt.ylabel('Instructions ')
