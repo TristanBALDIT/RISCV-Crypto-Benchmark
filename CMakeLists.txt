@@ -16,4 +16,5 @@ add_executable(RISCV_Crypto_Benchmark main.c
         monocypher.c
         monocypher.h
         ascon/ascon.c
-        ascon/ascon.h)
+        ascon/ascon.h
+        "opcodes test/ror64.c")
