@@ -3,6 +3,7 @@
 //
 #include <stdint.h>
 #include <stdio.h>
+#include <inttypes.h>
 //#include "util.h"
 
 int main ()
@@ -11,10 +12,10 @@ int main ()
     uint32_t w_low = 0x55667788;
     uint32_t result;
 
-    printf("High word");
-    printf("%08X ", w_high );
-    printf("Low word");
-    printf("%08X ", w_low );
+    printf("High word : ");
+    printf("%08"  PRIX32 "\n\t", w_high );
+    printf("Low word : ");
+    printf("%08"  PRIX32 "\n\t", w_low );
 
     asm volatile (
         "mv a0, %[hw]\n\t"
@@ -26,8 +27,8 @@ int main ()
         : "r0", "r1", "r2"
     );
 
-    printf("High word after ROR64");
-    printf("%08X ", result);
+    printf("High word after ROR64 : ");
+    printf("%08"  PRIX32 "\n\t", result);
 
     return 0;
 }
