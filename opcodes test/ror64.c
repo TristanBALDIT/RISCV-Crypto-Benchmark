@@ -20,21 +20,20 @@ int main ()
     asm volatile (
         "mv a0, %[hw]\n\t"
         "mv a1, %[lw]\n\t"
-        ".word 0x04B5060B\n\t"
-        "mov %[res], r0\n\t"
+        ".word 0x80B5060B\n\t"
+        "mv %[res], a2\n\t"
         : [res] "=r" (result)
         : [hw] "r"(w_high), [lw] "r"(w_low)
-        : "r0", "r1", "r2"
+        : "a2", "a0", "a1"
     );
 
     printf("High word after ROR64 : ");
     printf("%08"  PRIX32 "\r\n", result);
 
     asm volatile (
-        ".insn r CUSTOM_0, 0, %[rd], %[rs1], %[rs2], 64\n\t"
+        ".insn r CUSTOM_0, 0, 64, %[rd], %[rs1], %[rs2]\n\t"
         : [rd] "=r" (result)
         : [rs1] "r"(w_high), [rs2] "r"(w_low)
-        : "r0", "r1", "r2"
     );
 
     printf("High word after second ROR64 : ");
