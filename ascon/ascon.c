@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include "ascon.h"
+#include "asm.h"
 
 uint64_t rc[12] = {
     0x00000000000000f0, 0x00000000000000e1, 0x00000000000000d2,
@@ -34,6 +35,33 @@ void p(uint64_t state[5], uint64_t n)
         state[2] = state[2] ^ ROR64(state[2], 1) ^ ROR64(state[2], 6);
         state[3] = state[3] ^ ROR64(state[3], 10) ^ ROR64(state[3], 17);
         state[4] = state[4] ^ ROR64(state[4], 7) ^ ROR64(state[4], 41);
+    }
+}
+
+void p_asm(uint64_t state[5], uint64_t n) {
+    for(int i = 0; i < n; i++)
+    {
+        state[2] ^= rc[i];
+
+        uint64_t temp[5];
+        state[0] ^= state[4], state[4] ^= state[3], state[2] ^= state[1];
+        temp[0] = state[0], temp[1] = state[1], temp[2] = state[2], temp[3] = state[3], temp[4] = state[4];
+        temp[0] =~ temp[0], temp[1] =~  temp[1], temp[2] =~  temp[2], temp[3] =~ temp[3], temp[4] =~ temp[4];
+        temp[0] &= state[1], temp[1] &= state[2], temp[2] &= state[3], temp[3] &= state[4], temp[4] &= state[0];
+        state[0] ^= temp[1], state[1] ^= temp[2], state[2] ^= temp[3], state[3] ^= temp[4], state[4] ^= state[0];
+        state[1] ^= state[0], state[0] ^= state[4], state[3] ^= state[2], state[2] =~ state[2];
+
+        uint32_t* s32 = (uint32_t*)state;
+        s32[0] = s32[0] ^ custom_ROR64L_19(s32[1], s32[0]) ^ custom_ROR64L_28(s32[1], s32[0]);
+        s32[1] = s32[1] ^ custom_ROR64H_19(s32[1], s32[0]) ^ custom_ROR64H_28(s32[1], s32[0]);
+        s32[2] = s32[2] ^ custom_ROR64L_61(s32[3], s32[2]) ^ custom_ROR64L_39(s32[3], s32[2]);
+        s32[3] = s32[3] ^ custom_ROR64H_61(s32[3], s32[2]) ^ custom_ROR64H_39(s32[3], s32[2]);
+        s32[4] = s32[4] ^ custom_ROR64L_1(s32[5], s32[4]) ^ custom_ROR64L_6(s32[5], s32[4]);
+        s32[5] = s32[5] ^ custom_ROR64H_1(s32[5], s32[4]) ^ custom_ROR64H_6(s32[5], s32[4]);
+        s32[6] = s32[6] ^ custom_ROR64L_10(s32[7], s32[6]) ^ custom_ROR64L_17(s32[7], s32[6]);
+        s32[7] = s32[7] ^ custom_ROR64H_10(s32[7], s32[6]) ^ custom_ROR64H_17(s32[7], s32[6]);
+        s32[8] = s32[8] ^ custom_ROR64L_7(s32[9], s32[8]) ^ custom_ROR64L_41(s32[9], s32[8]);
+        s32[9] = s32[9] ^ custom_ROR64H_7(s32[9], s32[8]) ^ custom_ROR64H_41(s32[9], s32[8]);
     }
 }
 
@@ -333,3 +361,4 @@ void ASCON_128a_decrypt(uint64_t *data, const uint64_t key[2], const uint64_t no
     tag[0] = state[3] ^ key[0];
     tag[1] = state[4] ^ key[1];
 }
+
