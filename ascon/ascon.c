@@ -217,8 +217,8 @@ void ASCON_128a_encrypt(uint64_t *data, const uint64_t key[2], const uint64_t no
         }
         else
         {
-            ad_data[2*num_blocks-2] = (ad_data[2*num_blocks-2] << (128-n)) | (ad_data[2*num_blocks-1] >> (n-64));
-            ad_data[2*num_blocks-1] = (ad_data[2*num_blocks-1] << (128-n)) | (0x1 << (127-n));
+            ad_data[2*num_ad_blocks-2] = (ad_data[2*num_ad_blocks-2] << (128-n)) | (ad_data[2*num_ad_blocks-1] >> (n-64));
+            ad_data[2*num_ad_blocks-1] = (ad_data[2*num_ad_blocks-1] << (128-n)) | (0x1 << (127-n));
         }
     }
 
@@ -297,8 +297,8 @@ void ASCON_128a_decrypt(uint64_t *data, const uint64_t key[2], const uint64_t no
         }
         else
         {
-            ad_data[2*num_blocks-2] = (ad_data[2*num_blocks-2] << (128-n)) | (ad_data[2*num_blocks-1] >> (n-64));
-            ad_data[2*num_blocks-1] = (ad_data[2*num_blocks-1] << (128-n)) | (0x1 << (127-n));
+            ad_data[2*num_ad_blocks-2] = (ad_data[2*num_ad_blocks-2] << (128-n)) | (ad_data[2*num_ad_blocks-1] >> (n-64));
+            ad_data[2*num_ad_blocks-1] = (ad_data[2*num_ad_blocks-1] << (128-n)) | (0x1 << (127-n));
         }
     }
 
@@ -514,8 +514,8 @@ void ASCON_128a_encrypt_custom(uint64_t *data, const uint64_t key[2], const uint
         }
         else
         {
-            ad_data[2*num_blocks-2] = (ad_data[2*num_blocks-2] << (128-n)) | (ad_data[2*num_blocks-1] >> (n-64));
-            ad_data[2*num_blocks-1] = (ad_data[2*num_blocks-1] << (128-n)) | (0x1 << (127-n));
+            ad_data[2*num_ad_blocks-2] = (ad_data[2*num_ad_blocks-2] << (128-n)) | (ad_data[2*num_ad_blocks-1] >> (n-64));
+            ad_data[2*num_ad_blocks-1] = (ad_data[2*num_ad_blocks-1] << (128-n)) | (0x1 << (127-n));
         }
     }
 
@@ -594,8 +594,8 @@ void ASCON_128a_decrypt_custom(uint64_t *data, const uint64_t key[2], const uint
         }
         else
         {
-            ad_data[2*num_blocks-2] = (ad_data[2*num_blocks-2] << (128-n)) | (ad_data[2*num_blocks-1] >> (n-64));
-            ad_data[2*num_blocks-1] = (ad_data[2*num_blocks-1] << (128-n)) | (0x1 << (127-n));
+            ad_data[2*num_ad_blocks-2] = (ad_data[2*num_ad_blocks-2] << (128-n)) | (ad_data[2*num_ad_blocks-1] >> (n-64));
+            ad_data[2*num_ad_blocks-1] = (ad_data[2*num_ad_blocks-1] << (128-n)) | (0x1 << (127-n));
         }
     }
 
