@@ -7,6 +7,130 @@
 
 #include <stdint.h>
 
+#ifdef NO_RISCV_ASM
+
+static inline uint32_t custom_ROR64H_19(uint32_t w_high, uint32_t w_low) {
+    uint64_t w = ((uint64_t)w_high << 32) | w_low;
+    uint64_t r = (w >> 19) | (w << (64 - 19));
+    return (uint32_t)(r >> 32);
+}
+
+static inline uint32_t custom_ROR64L_19(uint32_t w_high, uint32_t w_low) {
+    uint64_t w = ((uint64_t)w_high << 32) | w_low;
+    uint64_t r = (w >> 19) | (w << (64 - 19));
+    return (uint32_t)(r);
+}
+
+static inline uint32_t custom_ROR64H_28(uint32_t w_high, uint32_t w_low) {
+    uint64_t w = ((uint64_t)w_high << 32) | w_low;
+    uint64_t r = (w >> 28) | (w << (64 - 28));
+    return (uint32_t)(r >> 32);
+}
+
+static inline uint32_t custom_ROR64L_28(uint32_t w_high, uint32_t w_low) {
+    uint64_t w = ((uint64_t)w_high << 32) | w_low;
+    uint64_t r = (w >> 28) | (w << (64 - 28));
+    return (uint32_t)(r);
+}
+
+static inline uint32_t custom_ROR64H_61(uint32_t w_high, uint32_t w_low) {
+    uint64_t w = ((uint64_t)w_high << 32) | w_low;
+    uint64_t r = (w >> 61) | (w << (64 - 61));
+    return (uint32_t)(r >> 32);
+}
+
+static inline uint32_t custom_ROR64L_61(uint32_t w_high, uint32_t w_low) {
+    uint64_t w = ((uint64_t)w_high << 32) | w_low;
+    uint64_t r = (w >> 61) | (w << (64 - 61));
+    return (uint32_t)(r);
+}
+
+static inline uint32_t custom_ROR64H_39(uint32_t w_high, uint32_t w_low) {
+    uint64_t w = ((uint64_t)w_high << 32) | w_low;
+    uint64_t r = (w >> 39) | (w << (64 - 39));
+    return (uint32_t)(r >> 32);
+}
+
+static inline uint32_t custom_ROR64L_39(uint32_t w_high, uint32_t w_low) {
+    uint64_t w = ((uint64_t)w_high << 32) | w_low;
+    uint64_t r = (w >> 39) | (w << (64 - 39));
+    return (uint32_t)(r);
+}
+
+static inline uint32_t custom_ROR64H_1(uint32_t w_high, uint32_t w_low) {
+    uint64_t w = ((uint64_t)w_high << 32) | w_low;
+    uint64_t r = (w >> 1) | (w << (64 - 1));
+    return (uint32_t)(r >> 32);
+}
+
+static inline uint32_t custom_ROR64L_1(uint32_t w_high, uint32_t w_low) {
+    uint64_t w = ((uint64_t)w_high << 32) | w_low;
+    uint64_t r = (w >> 1) | (w << (64 - 1));
+    return (uint32_t)(r);
+}
+
+static inline uint32_t custom_ROR64H_6(uint32_t w_high, uint32_t w_low) {
+    uint64_t w = ((uint64_t)w_high << 32) | w_low;
+    uint64_t r = (w >> 6) | (w << (64 - 6));
+    return (uint32_t)(r >> 32);
+}
+
+static inline uint32_t custom_ROR64L_6(uint32_t w_high, uint32_t w_low) {
+    uint64_t w = ((uint64_t)w_high << 32) | w_low;
+    uint64_t r = (w >> 6) | (w << (64 - 6));
+    return (uint32_t)(r);
+}
+
+static inline uint32_t custom_ROR64H_10(uint32_t w_high, uint32_t w_low) {
+    uint64_t w = ((uint64_t)w_high << 32) | w_low;
+    uint64_t r = (w >> 10) | (w << (64 - 10));
+    return (uint32_t)(r >> 32);
+}
+
+static inline uint32_t custom_ROR64L_10(uint32_t w_high, uint32_t w_low) {
+    uint64_t w = ((uint64_t)w_high << 32) | w_low;
+    uint64_t r = (w >> 10) | (w << (64 - 10));
+    return (uint32_t)(r);
+}
+
+static inline uint32_t custom_ROR64H_17(uint32_t w_high, uint32_t w_low) {
+    uint64_t w = ((uint64_t)w_high << 32) | w_low;
+    uint64_t r = (w >> 17) | (w << (64 - 17));
+    return (uint32_t)(r >> 32);
+}
+
+static inline uint32_t custom_ROR64L_17(uint32_t w_high, uint32_t w_low) {
+    uint64_t w = ((uint64_t)w_high << 32) | w_low;
+    uint64_t r = (w >> 17) | (w << (64 - 17));
+    return (uint32_t)(r);
+}
+
+static inline uint32_t custom_ROR64H_7(uint32_t w_high, uint32_t w_low) {
+    uint64_t w = ((uint64_t)w_high << 32) | w_low;
+    uint64_t r = (w >> 7) | (w << (64 - 7));
+    return (uint32_t)(r >> 32);
+}
+
+static inline uint32_t custom_ROR64L_7(uint32_t w_high, uint32_t w_low) {
+    uint64_t w = ((uint64_t)w_high << 32) | w_low;
+    uint64_t r = (w >> 7) | (w << (64 - 7));
+    return (uint32_t)(r);
+}
+
+static inline uint32_t custom_ROR64H_41(uint32_t w_high, uint32_t w_low) {
+    uint64_t w = ((uint64_t)w_high << 32) | w_low;
+    uint64_t r = (w >> 41) | (w << (64 - 41));
+    return (uint32_t)(r >> 32);
+}
+
+static inline uint32_t custom_ROR64L_41(uint32_t w_high, uint32_t w_low) {
+    uint64_t w = ((uint64_t)w_high << 32) | w_low;
+    uint64_t r = (w >> 41) | (w << (64 - 41));
+    return (uint32_t)(r);
+}
+
+#else
+
 static inline uint32_t custom_ROR64H_19(uint32_t w_high, uint32_t w_low) {
     uint64_t result;
     asm volatile (
@@ -206,5 +330,7 @@ static inline uint32_t custom_ROR64L_41(uint32_t w_high, uint32_t w_low) {
     );
     return result;
 }
+
+#endif // NO_RISCV_ASM
 
 #endif //ASM_H
