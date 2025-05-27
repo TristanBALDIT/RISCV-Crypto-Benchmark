@@ -43,13 +43,14 @@ void p_asm(uint64_t state[5], uint64_t n) {
     {
         state[2] ^= rc[i];
 
-        uint64_t temp[5];
+        uint64_t temp[2];
         state[0] ^= state[4], state[4] ^= state[3], state[2] ^= state[1];
-        temp[0] = state[0], temp[1] = state[1], temp[2] = state[2], temp[3] = state[3], temp[4] = state[4];
-        temp[0] =~ temp[0], temp[1] =~  temp[1], temp[2] =~  temp[2], temp[3] =~ temp[3], temp[4] =~ temp[4];
-        temp[0] &= state[1], temp[1] &= state[2], temp[2] &= state[3], temp[3] &= state[4], temp[4] &= state[0];
-        state[0] ^= temp[1], state[1] ^= temp[2], state[2] ^= temp[3], state[3] ^= temp[4], state[4] ^= state[0];
-        state[1] ^= state[0], state[0] ^= state[4], state[3] ^= state[2], state[2] =~ state[2];
+        temp[0] = custom_OP_ASCON(state[0], state[1], state[2]);
+        temp[1] = custom_OP_ASCON(state[1], state[2], state[3]);
+        state[2] = custom_OP_ASCON(state[2], state[3], state[4]);
+        state[3] = custom_OP_ASCON(state[3], state[4], state[0]);
+        state[4] = custom_OP_ASCON(state[4], state[0], state[1]);
+        state[0] = temp[0] ^ state[4] , state[1] = temp[1] ^ temp[0], state[3] ^= state[2], state[2] = ~ state[2];
 
         uint32_t* s32 = (uint32_t*)state;
         s32[0] = s32[0] ^ custom_ROR64L_19(s32[1], s32[0]) ^ custom_ROR64L_28(s32[1], s32[0]);
