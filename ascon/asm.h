@@ -338,7 +338,7 @@ static inline uint32_t custom_ROR64L_41(uint32_t w_high, uint32_t w_low) {
 static inline uint32_t custom_OP_ASCON(uint32_t w1, uint32_t w2, uint32_t w3) {
     uint32_t result;
     asm volatile (
-        ".insn r4 CUSTOM_0, 2, %[rd], %[rs1], %[rs2], %[rs3]\n\t"
+        ".insn r4 CUSTOM_0, 2, 0, %[rd], %[rs1], %[rs2], %[rs3]\n\t"
         : [rd] "=r" (result)
         : [rs1] "r"(w1), [rs2] "r"(w2), [rs3] "r"(w3)
     );
