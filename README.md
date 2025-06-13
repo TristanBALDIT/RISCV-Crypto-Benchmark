@@ -165,7 +165,43 @@ Continuing.
 
 9. On the hyperterminal configured on /dev/ttyUSB0 11520-8-N-1, you should see:
 ```
-*benchmark results*
+RISCV CRYPTO BENCHMARK
+
+100 iterations , 10 blocks, 512 additionnal bits
+
+AES BENCHMARK
+
+Simple Block Encryption-Decryption
+
+KEY SIZE : 128
+Plaintext :3243F6A8 885A308D 313198A2 E0370734
+Ciphertext :3925841D 02DC09FB DC118597 196A0B32
+3629 instructions
+7086 cycles
+
+Final Plaintext :3243F6A8 885A308D 313198A2 E0370734
+6693 instructions
+10157 cycles
+
+Total cycles for 100 iterations :
+Encryption : 621653 / min: 6204 / max: 7086
+Decryption : 928675 / min: 9272 / max: 10157
+
+
+KEY SIZE : 192
+Plaintext :3243F6A8 885A308D 313198A2 E0370734
+Ciphertext :9CBF057F 2F9517EC 58C3DCBC 9780EB05
+4277 instructions
+7680 cycles
+
+Final Plaintext :3243F6A8 885A308D 313198A2 E0370734
+8026 instructions
+11664 cycles
+
+Total cycles for 100 iterations :
+Encryption : 731941 / min: 7312 / max: 7680
+Decryption : 1108601 / min: 11077 / max: 11664
+
 ```
 
 
