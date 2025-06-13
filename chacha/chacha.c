@@ -8,6 +8,7 @@
 #include <stddef.h>
 #include <string.h>
 #include "poly1305.h"
+#include "asm.h"
 
 void QR(uint32_t *a, uint32_t *b, uint32_t *c, uint32_t *d)
 {
@@ -16,6 +17,14 @@ void QR(uint32_t *a, uint32_t *b, uint32_t *c, uint32_t *d)
     *a += *b; *d ^= *a; *d = ROTL32(*d, 8);
     *c += *d; *b ^= *c; *b = ROTL32(*b, 7);
 
+}
+
+void QR_asm(uint32_t *a, uint32_t *b, uint32_t *c, uint32_t *d)
+{
+    *d = OP_CHACHA_16(*a, *b, *d); *a += *b;
+    *b = OP_CHACHA_12(*c, *d, *b); *c += *d;
+    *d = OP_CHACHA_8(*a, *b, *d); *a += *b;
+    *b = OP_CHACHA_8(*c, *d, *b); *c += *d;
 }
 
 void KeyBlockGeneration(uint32_t block[16], uint32_t key[8], uint32_t nonce[3], uint32_t counter)
@@ -103,4 +112,49 @@ void Chacha20_Poly1305(uint32_t *data, uint32_t *ad_data, uint32_t key[8], uint3
     KeyBlockGeneration(mac_key_block, key, nonce, 0);
 
     poly1305(mac, message, message_size, mac_key_block);
+}
+
+void KeyBlockGeneration_asm(uint32_t block[16], uint32_t key[8], uint32_t nonce[3], uint32_t counter)
+{
+    block[0] = CHACHA_CONST_0;
+    block[1] = CHACHA_CONST_1;
+    block[2] = CHACHA_CONST_2;
+    block[3] = CHACHA_CONST_3;
+
+    memcpy(&block[4], key, 8 * sizeof(uint32_t));
+    block[12] = counter;
+    memcpy(&block[13], nonce, 3 * sizeof(uint32_t));
+
+    uint32_t working_block[16];
+    memcpy(working_block, block, 16*sizeof(uint32_t));
+
+    for (int i = 0; i < 10; i++) { // 10 double rounds = 20 rounds
+        // Column rounds
+        QR_asm(&working_block[0], &working_block[4], &working_block[8], &working_block[12]);
+        QR_asm(&working_block[1], &working_block[5], &working_block[9], &working_block[13]);
+        QR_asm(&working_block[2], &working_block[6], &working_block[10], &working_block[14]);
+        QR_asm(&working_block[3], &working_block[7], &working_block[11], &working_block[15]);
+
+        // Diagonal rounds
+        QR_asm(&working_block[0], &working_block[5], &working_block[10], &working_block[15]);
+        QR_asm(&working_block[1], &working_block[6], &working_block[11], &working_block[12]);
+        QR_asm(&working_block[2], &working_block[7], &working_block[8], &working_block[13]);
+        QR_asm(&working_block[3], &working_block[4], &working_block[9], &working_block[14]);
+    }
+    for (int i = 0; i < 16; i++) block[i] += working_block[i];
+}
+
+void ChaCha20_custom(uint32_t *data, uint32_t key[8], uint32_t nonce[3], size_t num_blocks)
+{
+    uint32_t counter = 1;
+    for (int i = 0; i < num_blocks; i++)
+    {
+        uint32_t key_block[16];
+        KeyBlockGeneration_asm(key_block, key, nonce, counter);
+        for (int j = 0; j < 16; j++)
+        {
+            data[16*i+j] ^= key_block[j];
+        }
+        counter++;
+    }
 }

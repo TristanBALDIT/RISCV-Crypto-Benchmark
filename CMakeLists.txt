@@ -19,6 +19,7 @@ add_executable(RISCV_Crypto_Benchmark main.c
         ascon/ascon.h
         "opcodes test/ror64.c"
         ascon/asm.h
-        "opcodes test/chacha.c")
+        "opcodes test/chacha.c"
+        chacha/asm.h)
 
 add_definitions(-DNO_RISCV_ASM)
