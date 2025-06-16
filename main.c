@@ -415,7 +415,7 @@ int main() {
 
         if(e == 0)
         {
-            //printf("Chacha20 10 Block : \r\n");
+            //printf("Chacha20 %d Block : \r\n", blocks);
             //printf("%d instructions\r\n", (int)(instret));
             //printf("%d cycles\r\n\r\n", (int)(cycles));
             min_e = ce;
@@ -443,7 +443,7 @@ int main() {
 
         if(e == 0)
         {
-            //printf("Chacha20-Poly1305 10 Block : \r\n");
+            //printf("Chacha20-Poly1305 %d Block : \r\n", blocks);
             //printf("%d instructions\r\n", (int)(instret));
             //printf("%d cycles\r\n\r\n", (int)(cycles));
             min_e = ce;
@@ -482,7 +482,7 @@ int main() {
 
         if(e == 0)
         {
-            //printf("ASCON 10 Block Encrypt: \r\n");
+            //printf("ASCON %d Blocks Encrypt: \r\n", blocks);
             //printf("%d instructions\r\n", (int)(instret));
             //printf("%d cycles\r\n\r\n", (int)(cycles));
             printf("cipher\r\n");
@@ -507,7 +507,7 @@ int main() {
 
         if(e == 0)
         {
-            //printf("ASCON_128 10 Blocks Decrypt : \r\n");
+            //printf("ASCON_128 %d Blocks Decrypt : \r\n", blocks);
             //printf("%d instructions\r\n", (int)(instret));
             //printf("%d cycles\r\n\r\n", (int)(cycles));
             printf("plain \r\n");
@@ -553,7 +553,7 @@ int main() {
 
         if(e == 0)
         {
-            //printf("ASCON_128a 10 Block Encrypt: \r\n");
+            //printf("ASCON_128a %d Block Encrypt: \r\n", blocks);
             //printf("%d instructions\r\n", (int)(instret));
             //printf("%d cycles\r\n\r\n", (int)(cycles));
 
@@ -579,7 +579,7 @@ int main() {
 
         if(e == 0)
         {
-            //printf("ASCON_128a 10 Blocks Decrypt : \r\n");
+            //printf("ASCON_128a %d Blocks Decrypt : \r\n", blocks);
             //printf("%d instructions\r\n", (int)(instret));
             //printf("%d cycles\r\n\r\n", (int)(cycles));
 
