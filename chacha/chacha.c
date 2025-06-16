@@ -144,7 +144,7 @@ void KeyBlockGeneration_asm(uint32_t block[16], uint32_t key[8], uint32_t nonce[
     for (int i = 0; i < 16; i++) block[i] += working_block[i];
 }
 
-void ChaCha20_custom(uint32_t *data, uint32_t key[8], uint32_t nonce[3], size_t num_blocks)
+void Chacha20_custom(uint32_t *data, uint32_t key[8], uint32_t nonce[3], size_t num_blocks)
 {
     uint32_t counter = 1;
     for (int i = 0; i < num_blocks; i++)

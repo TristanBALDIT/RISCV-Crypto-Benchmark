@@ -19,7 +19,7 @@ void KeyBlockGeneration(uint32_t block[16], uint32_t key[8], uint32_t nonce[3], 
 void Chacha20(uint32_t *data, uint32_t key[8], uint32_t nonce[3], size_t num_blocks);
 void Chacha20_Poly1305(uint32_t *data, uint32_t *ad_data, uint32_t key[8], uint32_t nonce[3], size_t num_blocks, size_t num_ad_blocks, uint8_t mac[16]);
 void KeyBlockGeneration_asm(uint32_t block[16], uint32_t key[8], uint32_t nonce[3], uint32_t counter);
-void ChaCha20_custom(uint32_t *data, uint32_t key[8], uint32_t nonce[3], size_t num_blocks);
+void Chacha20_custom(uint32_t *data, uint32_t key[8], uint32_t nonce[3], size_t num_blocks);
 void Chacha20_Poly1305_custom(uint32_t *data, uint32_t *ad_data, uint32_t key[8], uint32_t nonce[3], size_t num_blocks, size_t num_ad_blocks, uint8_t mac[16]);
 
 #endif //CHACHA_H
