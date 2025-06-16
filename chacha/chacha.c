@@ -21,10 +21,14 @@ void QR(uint32_t *a, uint32_t *b, uint32_t *c, uint32_t *d)
 
 void QR_asm(uint32_t *a, uint32_t *b, uint32_t *c, uint32_t *d)
 {
-    *d = OP_CHACHA_16(*a, *b, *d); *a += *b;
-    *b = OP_CHACHA_12(*c, *d, *b); *c += *d;
-    *d = OP_CHACHA_8(*a, *b, *d); *a += *b;
-    *b = OP_CHACHA_8(*c, *d, *b); *c += *d;
+    uint32_t va = *a, vb = *b, vc = *c, vd = *d;
+
+    vd = OP_CHACHA_16(va, vb, vd); va += vb;
+    vb = OP_CHACHA_12(vc, vd, vb); vc += vd;
+    vd = OP_CHACHA_8(va, vb, vd);  va += vb;
+    vb = OP_CHACHA_8(vc, vd, vb);  vc += vd;
+
+    *a = va; *b = vb; *c = vc; *d = vd;
 }
 
 void KeyBlockGeneration(uint32_t block[16], uint32_t key[8], uint32_t nonce[3], uint32_t counter)
