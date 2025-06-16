@@ -158,3 +158,22 @@ void ChaCha20_custom(uint32_t *data, uint32_t key[8], uint32_t nonce[3], size_t 
         counter++;
     }
 }
+
+void Chacha20_Poly1305_custom(uint32_t *data, uint32_t *ad_data, uint32_t key[8], uint32_t nonce[3], size_t num_blocks, size_t num_ad_blocks, uint8_t mac[16])
+{
+
+    Chacha20_custom(data, key, nonce, num_blocks);
+
+    size_t message_size = (num_blocks+num_ad_blocks) * 16 * 4;
+    uint32_t message[(num_blocks+num_ad_blocks)*16];
+    uint32_t mac_key_block[16];
+
+    //Creation of full data message for Poly1305
+    memcpy(message, ad_data, num_ad_blocks*16*sizeof(uint32_t));
+    memcpy(message + num_ad_blocks*16, data, num_blocks*16*sizeof(uint32_t));
+
+    //Generation of Poly1305 Key
+    KeyBlockGeneration(mac_key_block, key, nonce, 0);
+
+    poly1305(mac, message, message_size, mac_key_block);
+}
