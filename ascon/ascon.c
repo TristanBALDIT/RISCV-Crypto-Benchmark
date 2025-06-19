@@ -22,14 +22,20 @@ void p(uint64_t state[5], uint64_t n)
     {
         state[2] ^= rc[i];
 
-        uint64_t temp[5];
-        state[0] ^= state[4], state[4] ^= state[3], state[2] ^= state[1];
-        temp[0] = state[0], temp[1] = state[1], temp[2] = state[2], temp[3] = state[3], temp[4] = state[4];
-        temp[0] =~ temp[0], temp[1] =~  temp[1], temp[2] =~  temp[2], temp[3] =~ temp[3], temp[4] =~ temp[4];
-        temp[0] &= state[1], temp[1] &= state[2], temp[2] &= state[3], temp[3] &= state[4], temp[4] &= state[0];
-        state[0] ^= temp[1], state[1] ^= temp[2], state[2] ^= temp[3], state[3] ^= temp[4], state[4] ^= state[0];
-        state[1] ^= state[0], state[0] ^= state[4], state[3] ^= state[2], state[2] =~ state[2];
-
+        uint64_t temp[2];
+        uint32_t* s32 = (uint32_t*)state;
+        uint32_t* t32 = (uint32_t*)temp;
+        
+        t32[0] = custom_OP_ASCON(s32[0], s32[2], s32[4]);
+        t32[1] = custom_OP_ASCON(s32[1], s32[3], s32[5]);
+        t32[2] = custom_OP_ASCON(s32[2], s32[4], s32[6]);
+        t32[3] = custom_OP_ASCON(s32[3], s32[5], s32[7]);
+        s32[4] = custom_OP_ASCON(s32[4], s32[6], s32[8]);
+        s32[5] = custom_OP_ASCON(s32[5], s32[7], s32[9]);
+        s32[6] = custom_OP_ASCON(s32[6], s32[8], s32[0]);
+        s32[7] = custom_OP_ASCON(s32[7], s32[9], s32[1]);
+        s32[8] = custom_OP_ASCON(s32[8], s32[0], s32[2]);
+        s32[9] = custom_OP_ASCON(s32[9], s32[1], s32[3]);
         state[0] = state[0] ^ ROR64(state[0], 19) ^ ROR64(state[0], 28);
         state[1] = state[1] ^ ROR64(state[1], 61) ^ ROR64(state[1], 39);
         state[2] = state[2] ^ ROR64(state[2], 1) ^ ROR64(state[2], 6);
@@ -43,13 +49,23 @@ void p_asm(uint64_t state[5], uint64_t n) {
     {
         state[2] ^= rc[i];
 
-        uint64_t temp[2];
         state[0] ^= state[4], state[4] ^= state[3], state[2] ^= state[1];
-        temp[0] = custom_OP_ASCON(state[0], state[1], state[2]);
-        temp[1] = custom_OP_ASCON(state[1], state[2], state[3]);
-        state[2] = custom_OP_ASCON(state[2], state[3], state[4]);
-        state[3] = custom_OP_ASCON(state[3], state[4], state[0]);
-        state[4] = custom_OP_ASCON(state[4], state[0], state[1]);
+
+        uint64_t temp[2];
+        uint32_t* s32 = (uint32_t*)state;
+        uint32_t* t32 = (uint32_t*)temp;
+        
+        t32[0] = custom_OP_ASCON(s32[0], s32[2], s32[4]);
+        t32[1] = custom_OP_ASCON(s32[1], s32[3], s32[5]);
+        t32[2] = custom_OP_ASCON(s32[2], s32[4], s32[6]);
+        t32[3] = custom_OP_ASCON(s32[3], s32[5], s32[7]);
+        s32[4] = custom_OP_ASCON(s32[4], s32[6], s32[8]);
+        s32[5] = custom_OP_ASCON(s32[5], s32[7], s32[9]);
+        s32[6] = custom_OP_ASCON(s32[6], s32[8], s32[0]);
+        s32[7] = custom_OP_ASCON(s32[7], s32[9], s32[1]);
+        s32[8] = custom_OP_ASCON(s32[8], s32[0], s32[2]);
+        s32[9] = custom_OP_ASCON(s32[9], s32[1], s32[3]);
+        
         state[0] = temp[0] ^ state[4] , state[1] = temp[1] ^ temp[0], state[3] ^= state[2], state[2] = ~ state[2];
 
         uint32_t* s32 = (uint32_t*)state;
