@@ -22,20 +22,14 @@ void p(uint64_t state[5], uint64_t n)
     {
         state[2] ^= rc[i];
 
-        uint64_t temp[2];
-        uint32_t* s32 = (uint32_t*)state;
-        uint32_t* t32 = (uint32_t*)temp;
-        
-        t32[0] = custom_OP_ASCON(s32[0], s32[2], s32[4]);
-        t32[1] = custom_OP_ASCON(s32[1], s32[3], s32[5]);
-        t32[2] = custom_OP_ASCON(s32[2], s32[4], s32[6]);
-        t32[3] = custom_OP_ASCON(s32[3], s32[5], s32[7]);
-        s32[4] = custom_OP_ASCON(s32[4], s32[6], s32[8]);
-        s32[5] = custom_OP_ASCON(s32[5], s32[7], s32[9]);
-        s32[6] = custom_OP_ASCON(s32[6], s32[8], s32[0]);
-        s32[7] = custom_OP_ASCON(s32[7], s32[9], s32[1]);
-        s32[8] = custom_OP_ASCON(s32[8], s32[0], s32[2]);
-        s32[9] = custom_OP_ASCON(s32[9], s32[1], s32[3]);
+        uint64_t temp[5];
+        state[0] ^= state[4], state[4] ^= state[3], state[2] ^= state[1];
+        temp[0] = state[0], temp[1] = state[1], temp[2] = state[2], temp[3] = state[3], temp[4] = state[4];
+        temp[0] =~ temp[0], temp[1] =~  temp[1], temp[2] =~  temp[2], temp[3] =~ temp[3], temp[4] =~ temp[4];
+        temp[0] &= state[1], temp[1] &= state[2], temp[2] &= state[3], temp[3] &= state[4], temp[4] &= state[0];
+        state[0] ^= temp[1], state[1] ^= temp[2], state[2] ^= temp[3], state[3] ^= temp[4], state[4] ^= state[0];
+        state[1] ^= state[0], state[0] ^= state[4], state[3] ^= state[2], state[2] =~ state[2];
+
         state[0] = state[0] ^ ROR64(state[0], 19) ^ ROR64(state[0], 28);
         state[1] = state[1] ^ ROR64(state[1], 61) ^ ROR64(state[1], 39);
         state[2] = state[2] ^ ROR64(state[2], 1) ^ ROR64(state[2], 6);
@@ -68,17 +62,28 @@ void p_asm(uint64_t state[5], uint64_t n) {
         
         state[0] = temp[0] ^ state[4] , state[1] = temp[1] ^ temp[0], state[3] ^= state[2], state[2] = ~ state[2];
 
-        uint32_t* s32 = (uint32_t*)state;
-        s32[0] = s32[0] ^ custom_ROR64L_19(s32[1], s32[0]) ^ custom_ROR64L_28(s32[1], s32[0]);
-        s32[1] = s32[1] ^ custom_ROR64H_19(s32[1], s32[0]) ^ custom_ROR64H_28(s32[1], s32[0]);
-        s32[2] = s32[2] ^ custom_ROR64L_61(s32[3], s32[2]) ^ custom_ROR64L_39(s32[3], s32[2]);
-        s32[3] = s32[3] ^ custom_ROR64H_61(s32[3], s32[2]) ^ custom_ROR64H_39(s32[3], s32[2]);
-        s32[4] = s32[4] ^ custom_ROR64L_1(s32[5], s32[4]) ^ custom_ROR64L_6(s32[5], s32[4]);
-        s32[5] = s32[5] ^ custom_ROR64H_1(s32[5], s32[4]) ^ custom_ROR64H_6(s32[5], s32[4]);
-        s32[6] = s32[6] ^ custom_ROR64L_10(s32[7], s32[6]) ^ custom_ROR64L_17(s32[7], s32[6]);
-        s32[7] = s32[7] ^ custom_ROR64H_10(s32[7], s32[6]) ^ custom_ROR64H_17(s32[7], s32[6]);
-        s32[8] = s32[8] ^ custom_ROR64L_7(s32[9], s32[8]) ^ custom_ROR64L_41(s32[9], s32[8]);
-        s32[9] = s32[9] ^ custom_ROR64H_7(s32[9], s32[8]) ^ custom_ROR64H_41(s32[9], s32[8]);
+        // The following commented lines are the 1st iteration of the custom ROR functions.
+        // s32[0] = s32[0] ^ custom_ROR64L_19(s32[1], s32[0]) ^ custom_ROR64L_28(s32[1], s32[0]);
+        // s32[1] = s32[1] ^ custom_ROR64H_19(s32[1], s32[0]) ^ custom_ROR64H_28(s32[1], s32[0]);
+        // s32[2] = s32[2] ^ custom_ROR64L_61(s32[3], s32[2]) ^ custom_ROR64L_39(s32[3], s32[2]);
+        // s32[3] = s32[3] ^ custom_ROR64H_61(s32[3], s32[2]) ^ custom_ROR64H_39(s32[3], s32[2]);
+        // s32[4] = s32[4] ^ custom_ROR64L_1(s32[5], s32[4]) ^ custom_ROR64L_6(s32[5], s32[4]);
+        // s32[5] = s32[5] ^ custom_ROR64H_1(s32[5], s32[4]) ^ custom_ROR64H_6(s32[5], s32[4]);
+        // s32[6] = s32[6] ^ custom_ROR64L_10(s32[7], s32[6]) ^ custom_ROR64L_17(s32[7], s32[6]);
+        // s32[7] = s32[7] ^ custom_ROR64H_10(s32[7], s32[6]) ^ custom_ROR64H_17(s32[7], s32[6]);
+        // s32[8] = s32[8] ^ custom_ROR64L_7(s32[9], s32[8]) ^ custom_ROR64L_41(s32[9], s32[8]);
+        // s32[9] = s32[9] ^ custom_ROR64H_7(s32[9], s32[8]) ^ custom_ROR64H_41(s32[9], s32[8]);
+
+        s32[0] = MULTI_ROR64H_19_28(s32[1], s32[0]);
+        s32[1] = MULTI_ROR64L_19_28(s32[1], s32[0]);
+        s32[2] = MULTI_ROR64H_61_39(s32[3], s32[2]);
+        s32[3] = MULTI_ROR64L_61_39(s32[3], s32[2]);
+        s32[4] = MULTI_ROR64H_1_6(s32[5], s32[4]);
+        s32[5] = MULTI_ROR64L_1_6(s32[5], s32[4]);
+        s32[6] = MULTI_ROR64H_10_17(s32[7], s32[6]);
+        s32[7] = MULTI_ROR64L_10_17(s32[7], s32[6]);
+        s32[8] = MULTI_ROR64H_7_41(s32[9], s32[8]);
+        s32[9] = MULTI_ROR64L_7_41(s32[9], s32[8]);
     }
 }
 

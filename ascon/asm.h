@@ -133,6 +133,46 @@ static inline uint32_t custom_OP_ASCON(uint32_t w1, uint32_t w2, uint32_t w3) {
     return w1 ^ (~w2 & w3);
 }
 
+static inline uint32_t MULTI_ROR64H_19_28(uint32_t w_high, uint32_t w_low) {
+    return w_high ^ custom_ROR64H_19(w_high, w_low) ^ custom_ROR64H_28(w_high, w_low);
+}
+
+static inline uint32_t MULTI_ROR64L_19_28(uint32_t w_high, uint32_t w_low) {
+    return w_low ^ custom_ROR64L_19(w_high, w_low) ^ custom_ROR64L_28(w_high, w_low);
+}
+
+static inline uint32_t MULTI_ROR64H_61_39(uint32_t w_high, uint32_t w_low) {
+    return w_high ^ custom_ROR64H_61(w_high, w_low) ^ custom_ROR64H_39(w_high, w_low);
+}
+
+static inline uint32_t MULTI_ROR64L_61_39(uint32_t w_high, uint32_t w_low) {
+    return w_low ^ custom_ROR64L_61(w_high, w_low) ^ custom_ROR64L_39(w_high, w_low);
+}
+
+static inline uint32_t MULTI_ROR64H_1_6(uint32_t w_high, uint32_t w_low) {
+    return w_high ^ custom_ROR64H_1(w_high, w_low) ^ custom_ROR64H_6(w_high, w_low);
+}
+
+static inline uint32_t MULTI_ROR64L_1_6(uint32_t w_high, uint32_t w_low) {
+    return w_low ^ custom_ROR64L_1(w_high, w_low) ^ custom_ROR64L_6(w_high, w_low);
+}
+
+static inline uint32_t MULTI_ROR64H_10_17(uint32_t w_high, uint32_t w_low) {
+    return w_high ^ custom_ROR64H_10(w_high, w_low) ^ custom_ROR64H_17(w_high, w_low);
+}
+
+static inline uint32_t MULTI_ROR64L_10_17(uint32_t w_high, uint32_t w_low) {
+    return w_low ^ custom_ROR64L_10(w_high, w_low) ^ custom_ROR64L_17(w_high, w_low);
+}
+
+static inline uint32_t MULTI_ROR64H_7_41(uint32_t w_high, uint32_t w_low) {
+    return w_high ^ custom_ROR64H_7(w_high, w_low) ^ custom_ROR64H_41(w_high, w_low);
+}
+
+static inline uint32_t MULTI_ROR64L_7_41(uint32_t w_high, uint32_t w_low) {
+    return w_low ^ custom_ROR64L_7(w_high, w_low) ^ custom_ROR64L_41(w_high, w_low);
+}
+
 #else
 
 static inline uint32_t custom_ROR64H_19(uint32_t w_high, uint32_t w_low) {
@@ -344,6 +384,107 @@ static inline uint32_t custom_OP_ASCON(uint32_t w1, uint32_t w2, uint32_t w3) {
     );
     return result;
 }
+
+static inline uint32_t MULTI_ROR64H_19_28(uint32_t w_high, uint32_t w_low) {
+    uint32_t result;
+        asm volatile (
+        ".insn r CUSTOM_0, 4, 0, %[rd], %[rs1], %[rs2]\n\t"
+        : [rd] "=r" (result)
+        : [rs1] "r"(w_high), [rs2] "r"(w_low)
+    );
+    return result;
+}
+
+static inline uint32_t MULTI_ROR64L_19_28(uint32_t w_high, uint32_t w_low) {
+    uint32_t result;
+        asm volatile (
+        ".insn r CUSTOM_0, 5, 0, %[rd], %[rs1], %[rs2]\n\t"
+        : [rd] "=r" (result)
+        : [rs1] "r"(w_high), [rs2] "r"(w_low)
+    );
+    return result;
+}
+
+static inline uint32_t MULTI_ROR64H_61_39(uint32_t w_high, uint32_t w_low) {
+    uint32_t result;
+        asm volatile (
+        ".insn r CUSTOM_0, 4, 1, %[rd], %[rs1], %[rs2]\n\t"
+        : [rd] "=r" (result)
+        : [rs1] "r"(w_high), [rs2] "r"(w_low)
+    );
+    return result;
+}
+
+static inline uint32_t MULTI_ROR64L_61_39(uint32_t w_high, uint32_t w_low) {
+    uint32_t result;
+        asm volatile (
+        ".insn r CUSTOM_0, 5, 1, %[rd], %[rs1], %[rs2]\n\t"
+        : [rd] "=r" (result)
+        : [rs1] "r"(w_high), [rs2] "r"(w_low)
+    );
+    return result;
+}
+
+static inline uint32_t MULTI_ROR64H_1_6(uint32_t w_high, uint32_t w_low) {
+    uint32_t result;
+        asm volatile (
+        ".insn r CUSTOM_0, 4, 2, %[rd], %[rs1], %[rs2]\n\t"
+        : [rd] "=r" (result)
+        : [rs1] "r"(w_high), [rs2] "r"(w_low)
+    );
+    return result;
+}
+
+static inline uint32_t MULTI_ROR64L_1_6(uint32_t w_high, uint32_t w_low) {
+    uint32_t result;
+        asm volatile (
+        ".insn r CUSTOM_0, 5, 2, %[rd], %[rs1], %[rs2]\n\t"
+        : [rd] "=r" (result)
+        : [rs1] "r"(w_high), [rs2] "r"(w_low)
+    );
+    return result;
+}
+
+static inline uint32_t MULTI_ROR64H_10_17(uint32_t w_high, uint32_t w_low) {
+    uint32_t result;
+        asm volatile (
+        ".insn r CUSTOM_0, 4, 3, %[rd], %[rs1], %[rs2]\n\t"
+        : [rd] "=r" (result)
+        : [rs1] "r"(w_high), [rs2] "r"(w_low)
+    );
+    return result;
+}
+
+static inline uint32_t MULTI_ROR64L_10_17(uint32_t w_high, uint32_t w_low) {
+    uint32_t result;
+        asm volatile (
+        ".insn r CUSTOM_0, 5, 3, %[rd], %[rs1], %[rs2]\n\t"
+        : [rd] "=r" (result)
+        : [rs1] "r"(w_high), [rs2] "r"(w_low)
+    );
+    return result;
+}
+
+static inline uint32_t MULTI_ROR64H_7_41(uint32_t w_high, uint32_t w_low) {
+    uint32_t result;
+        asm volatile (
+        ".insn r CUSTOM_0, 4, 4, %[rd], %[rs1], %[rs2]\n\t"
+        : [rd] "=r" (result)
+        : [rs1] "r"(w_high), [rs2] "r"(w_low)
+    );
+    return result;
+}
+
+static inline uint32_t MULTI_ROR64L_7_41(uint32_t w_high, uint32_t w_low) {
+        uint32_t result;
+        asm volatile (
+        ".insn r CUSTOM_0, 5, 4, %[rd], %[rs1], %[rs2]\n\t"
+        : [rd] "=r" (result)
+        : [rs1] "r"(w_high), [rs2] "r"(w_low)
+    );
+    return result;
+}
+
 
 #endif // NO_RISCV_ASM
 
