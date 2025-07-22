@@ -78,13 +78,13 @@ drwxrwxr-x  5 user user 4096 Nov 23 10:57 bsp/
 drwxrwxr-x  2 user user 4096 Nov 23 10:57 utils/
 ```
 
-3. To compile mnist application, run the following commands.
+3. To compile **benchmark** application, run the following commands.
 ```
 user@[CONTAINER ID]:/workdir$ cd app
 user@[CONTAINER ID]:/workdir/app$ make benchmark
 
 ```
-At the end of the compilation the mnist.riscv executable file must be created.
+At the end of the compilation the **benchmark.riscv** executable file must be created.
 
 4. Then, in the Docker container, launch **OpenOCD** in background:
 ```
